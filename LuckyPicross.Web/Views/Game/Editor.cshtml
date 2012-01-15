@@ -1,0 +1,16 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Puzzle Builder";
+}
+
+<h2>Puzzle Editor</h2>
+
+<canvas id="game" width="900" height="700" style="border: solid 1px black;"></canvas>
+
+<script>
+    $(function () {
+        var game = new Picross("#game");
+        console.log(game);
+    });
+</script>
