@@ -3,15 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
-    <link href="@Url.Content("~/Content/css/site.css")" rel="stylesheet" type="text/css" />
-    <script src="@Url.Content("~/content/scripts/lib/jquery-1.7.1.min.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/content/scripts/lib/modernizr-2.0.6-development-only.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/content/scripts/base.js")" type="text/javascript"></script>
-    <script src="@Url.Content("~/content/scripts/picross.js")" type="text/javascript"></script>
+    @{
+        Bundles.Reference("content/css");
+    }
+
+    @Bundles.RenderStylesheets()
+    
+    @{
+        Bundles.Reference("content/scripts/lib/modernizr-2.0.6-development-only.js", "head");
+    }
+    @Bundles.RenderScripts("head")
 </head>
 
     <body>
         @RenderBody()
+        
+        @{
+            Bundles.Reference("content/scripts/picross.js");
+        }
+        @Bundles.RenderScripts()
+        @RenderSection("InlineScripts", required: false)
     </body>
-
 </html>

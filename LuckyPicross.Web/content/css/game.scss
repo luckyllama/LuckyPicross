@@ -1,0 +1,59 @@
+﻿
+@mixin background-color-ease-in($time) {
+	transition: background-color $time ease-in;
+	-moz-transition: background-color $time ease-in;
+	-o-transition: background-color $time ease-in;
+	-webkit-transition: background-color $time ease-in;
+}
+
+.picross-game {
+	border: solid 1px black;
+	height: 700px; 
+	width: 900px; 
+
+	table {
+		border-collapse:collapse;
+		border-spacing: 0;
+	}
+	> table {
+		height: 100%;
+		width: 100%;
+
+		.controls {
+
+		}
+
+		td {
+			@include background-color-ease-in(.1s);
+		}
+		td.hover {
+			background-color: #ddd;
+		}
+
+		.hints {
+			td {
+				border: solid 1px black;
+			}
+			
+			&.side {
+				float: right;
+				vertical-align: top;
+			}
+			&.top {
+				vertical-align: bottom;
+			}
+		}
+
+		.board {
+			vertical-align: top;
+			td {
+				border: solid 1px black;
+			}
+		}
+	}
+
+	&.size-10-10 > table td {
+		height: 45px;
+		width: 45px;
+	}
+}
