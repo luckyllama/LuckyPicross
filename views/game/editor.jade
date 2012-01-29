@@ -1,0 +1,20 @@
+extends ../layout
+
+block content
+    h2= title
+    
+    .picross-game
+        table
+            tr
+                td.controls
+                td.top.hints
+            tr
+                td.side.hints
+                td.board
+
+append scripts
+    script
+        $(function () {
+            var game = new Picross(".picross-game", { editorMode: true, debugMode: true });
+            console.log(game);
+        });
