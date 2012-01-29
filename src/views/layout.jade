@@ -1,6 +1,18 @@
-!!!
+!!! 5
 html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body!= body
+    link(rel='stylesheet', type='text/css', href='/stylesheets/site.less')
+    link(rel='stylesheet/less', type='text/css', href='/stylesheets/game.less')
+    script(src='js/lib/less-1.2.1.min.js')
+    script(src='js/lib/modernizr-2.0.6-development-only.js')
+    block head
+  body
+
+    block content
+    
+    script(src='js/lib/jquery-1.7.1.js')
+    script(src='js/base.js')
+    script(src='js/picross.js')
+    block scripts
