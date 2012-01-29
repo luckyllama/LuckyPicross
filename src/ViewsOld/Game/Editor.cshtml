@@ -1,0 +1,31 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Puzzle Builder";
+}
+
+<h2>Puzzle Editor</h2>
+
+<div class="picross-game">
+    <table>
+        <tr>
+            <td class="controls"></td>
+            <td class="top hints"></td>
+        </tr>
+        <tr>
+            <td class="side hints"></td>
+            <td class="board"></td>
+        </tr>
+    </table>
+
+</div>
+
+@section InlineScripts
+{
+<script>
+    $(function () {
+        var game = new Picross(".picross-game", { editorMode: true, debugMode: true });
+        console.log(game);
+    });
+</script>
+}
