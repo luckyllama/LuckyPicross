@@ -12,35 +12,75 @@ window.Picross = (function ($) {
         init: function (gameSelector, options) {
             this.options = $.extend({}, defaults, options);
 
-            this.gameState = new gameState(this.options.width, this.options.height, "");
+            this.gameState = new gameState(this.options.width, this.options.height, '');
+            this.inputState = {
+                leftMouseDown: false,
+                rightMouseDown: false,
+                shiftKeyDown: false
+            };
 
             var $game = $(gameSelector);
             this.gameArea = {
                 $game: $(gameSelector),
-                $board: $(".board", $game),
-                $topHints: $(".top.hints", $game),
-                $sideHints: $(".side.hints", $game)
+                $board: $('.board', $game),
+                $topHints: $('.top.hints', $game),
+                $sideHints: $('.side.hints', $game)
             };
             this.render();
             this.updateHints();
             this.bindEvents();
         },
         render: function () {
-            this.gameArea.$game.addClass("size-" + this.options.width + "-" + this.options.height);
+            this.gameArea.$game.addClass('size-' + this.options.width + '-' + this.options.height);
             this.gameArea.$board.append(createBoardTable(this.options.height, this.options.width));
             this.gameArea.$topHints.append(createTopHintsTable(this.options.width));
             this.gameArea.$sideHints.append(createSideHintsTable(this.options.height));
         },
         bindEvents: function () {
-            this.gameArea.$game.on("hover.picross", "td", function () {
-                var data = $(this).data();
-                if (data && typeof data.col !== "undefined") {
-                    $(".col-" + data.col, this.$game).toggleClass("hover");
-                }
-                if (data && typeof data.row !== "undefined") {
-                    $(".row-" + data.row, this.$game).toggleClass("hover");
-                }
+            var self = this;
+            this.gameArea.$game.on('hover.picross', 'td', function () {
+                var toggleHover = function ($el, align) {
+                    var alignIndex = $el.data(align);
+                    if (alignIndex !== 'undefined') {
+                        $('.' + align + '-' + alignIndex, self.gameArea.$game).toggleClass('hover');
+                    }
+                };
+                toggleHover($(this), 'col');
+                toggleHover($(this), 'row');
             });
+            var updateSquare = function ($el) {
+                if (self.inputState.leftMouseDown && !self.inputState.shiftKeyDown) {
+                    if ($el.is('.marked')) {
+                        $el.removeClass('marked');
+                    } else {
+                        $el.toggleClass('filled', !$el.is('.filled'));
+                    }
+                } else if (self.inputState.rightMouseDown || (self.inputState.leftMouseDown && self.inputState.shiftKeyDown)) {
+                    if ($el.is('.filled')) {
+                        $el.removeClass('filled');
+                    } else {
+                        $el.toggleClass('marked', !$el.is('.marked'));
+                    }
+                }
+            }
+            this.gameArea.$board.on('mousedown.picross', 'td', function (event) {
+                self.inputState.leftMouseDown = event.button === 0; // left mouse button
+                self.inputState.rightMouseDown = event.button === 2; // right mouse button
+                self.inputState.shiftKeyDown = event.shiftKey;
+                updateSquare($(this));
+                return false;
+            });
+            this.gameArea.$board.on('mouseup.picross', function (event) {
+                self.inputState.leftMouseDown = false;
+                self.inputState.rightMouseDown = false;
+                self.inputState.shiftKeyDown = event.shiftKeyDown;
+            });
+
+            this.gameArea.$board.on('mouseenter.picross', 'td', function (event) {
+                updateSquare($(this));
+            });
+
+            this.gameArea.$game.on('contextmenu.picross', function () { return false; });
         },
         updateHints: function () {
             var self = this;
@@ -59,8 +99,7 @@ window.Picross = (function ($) {
                             }
                         }
                     });
-                    if (!$hintArea.find("span").length) {
-                        console.log($hintArea);
+                    if (!$hintArea.find('span').length) {
                         $('<span>').text(count).appendTo($hintArea);
                     }
                 });
@@ -79,12 +118,12 @@ window.Picross = (function ($) {
     });
 
     var createBoardTable = function (height, width) {
-        var $table = $("<table>");
+        var $table = $('<table>');
         for (var rowIndex = 0; rowIndex < height; rowIndex++) {
-            var $row = $("<tr>").addClass("row-" + rowIndex);
+            var $row = $('<tr>').addClass('row-' + rowIndex);
             for (var colIndex = 0; colIndex < width; colIndex++) {
-                $("<td>")
-                    .addClass("col-" + colIndex + " row-" + rowIndex)
+                $('<td>')
+                    .addClass('col-' + colIndex + ' row-' + rowIndex)
                     .data({ col: colIndex, row: rowIndex })
                     .appendTo($row);
             }
@@ -94,10 +133,10 @@ window.Picross = (function ($) {
     };
 
     var createTopHintsTable = function (width) {
-        var $table = $("<table>");
-        var $row = $("<tr>").appendTo($table);
+        var $table = $('<table>');
+        var $row = $('<tr>').appendTo($table);
         for (var colIndex = 0; colIndex < width; colIndex++) {
-            $("<td>").addClass("col-" + colIndex)
+            $('<td>').addClass('col-' + colIndex)
                 .data({ col: colIndex })
                 .appendTo($row);
         }
@@ -105,10 +144,10 @@ window.Picross = (function ($) {
     };
 
     var createSideHintsTable = function (height) {
-        var $table = $("<table>");
+        var $table = $('<table>');
         for (var rowIndex = 0; rowIndex < height; rowIndex++) {
-            var $row = $("<tr>").appendTo($table);
-            $("<td>").addClass("row-" + rowIndex)
+            var $row = $('<tr>').appendTo($table);
+            $('<td>').addClass('row-' + rowIndex)
                 .data({ row: rowIndex })
                 .appendTo($row);
             $row.appendTo($table);
