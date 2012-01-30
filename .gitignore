@@ -1,12 +1,1 @@
-*.pdb
-*/bin/*
-*/obj/*
-*.user
-*.suo
-TestResults\
-_ReSharper*
-*.vs10x
-/LuckySiteMonitor.Web/bin
-/LuckySiteMonitor.Web/obj
-/LuckySiteMonitor/bin
-/LuckySiteMonitor/obj
+*idea
