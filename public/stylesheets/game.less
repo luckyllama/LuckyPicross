@@ -1,3 +1,5 @@
+@import "lib/mixins.less";
+@import "lib/variables.less";
 
 .background-color-ease-in (@time) {
 	transition: background-color @time ease-in;
@@ -7,16 +9,16 @@
 }
 
 .picross-game {
-	border: solid 1px black;
-	height: 700px; 
-	width: 900px; 
+	border: solid 1px #eee;
+    .border-bottom-radius(10px);
+    padding: 20px;
 
 	table {
 		border-collapse:collapse;
 		border-spacing: 0;
 	}
+
 	> table {
-		height: 100%;
 		width: 100%;
 
 		.controls {
@@ -27,39 +29,58 @@
 			.background-color-ease-in(.1s);
 		}
 		td.hover {
-			background-color: #ddd;
+			background-color: @grayLighter;
 		}
 
 		.hints {
 			td {
-				border: solid 1px black;
+                border: 1px solid @grayLighter;
+				span {
+
+				}
 			}
 			
 			&.side {
 				float: right;
+	            padding-right: 5px;
 				vertical-align: top;
+	            td span {
+                    padding: 0 7px;
+	            }
 			}
 			&.top {
+                padding-bottom: 5px;
 				vertical-align: bottom;
+	            td span {
+                    padding: 5px 0;
+	                display: block;
+	                text-align: center;
+	            }
 			}
 		}
 
 		.board {
 			vertical-align: top;
 			td {
-				border: solid 1px black;
+				border: solid 1px @grayLighter;
 			}
             td.filled {
-                background-color: #f33;
+                background-color: @baseColor;
             }
             td.marked {
-                background-color: #ff3;
+                background-color: @split1;
             }
 		}
 	}
 
-	&.size-10-10 > table td {
-		height: 45px;
-		width: 45px;
+	&.size-10-10 .side.hints td {
+	    height: 45px;
 	}
+    &.size-10-10 .top.hints td {
+        width: 45px;
+    }
+    &.size-10-10 .board td {
+        height: 45px;
+        width: 45px;    
+    }	
 }

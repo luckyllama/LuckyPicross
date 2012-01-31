@@ -74,6 +74,7 @@ window.Picross = (function ($) {
                 self.inputState.leftMouseDown = false;
                 self.inputState.rightMouseDown = false;
                 self.inputState.shiftKeyDown = event.shiftKeyDown;
+                self.updateHints();
             });
 
             this.gameArea.$board.on('mouseenter.picross', 'td', function (event) {
@@ -86,7 +87,7 @@ window.Picross = (function ($) {
             var self = this;
             var calculateHints = function ($hintsArea, align) {
                 $('td', $hintsArea).each(function () {
-                    var $hintArea = $(this);
+                    var $hintArea = $(this).html('');
                     var alignIndex = $hintArea.data(align);
                     var count = 0;
                     $('td.' + align + '-' + alignIndex, self.gameArea.$board).each(function () {
@@ -99,7 +100,7 @@ window.Picross = (function ($) {
                             }
                         }
                     });
-                    if (!$hintArea.find('span').length) {
+                    if (!$hintArea.find('span').length || count > 0) {
                         $('<span>').text(count).appendTo($hintArea);
                     }
                 });
