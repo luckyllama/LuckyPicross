@@ -5,6 +5,7 @@
   , "dependencies": {
       "express": "2.5.5"
     , "jade": ">= 0.0.1"
+    , "less": ">= 1.2.1"
     , "mongoose": ">= 2.5.2"
   }
 }
