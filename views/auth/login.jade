@@ -1,0 +1,12 @@
+extends ../layout
+
+block page-header
+    = title
+
+block main-content
+    p
+        a(href='/auth/google') Sign In with Google
+
+append scripts
+    script
+        $(function () {});

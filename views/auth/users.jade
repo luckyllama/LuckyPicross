@@ -1,0 +1,14 @@
+extends ../layout
+
+block page-header
+    = title
+
+block main-content
+    - each user in users
+      p
+        span.user-id= user.userId
+        span.display-name= user.displayName
+        span.name= user.name.givenName + ' ' + user.name.familyName
+
+
+append scripts
