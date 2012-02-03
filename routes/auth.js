@@ -36,17 +36,36 @@ module.exports = function (app, db) {
 
     passport.serializeUser(function(user, done) {
         console.log(user);
-        done(null, user.id);
+        done(null, user._id);
     });
 
     passport.deserializeUser(function(id, done) {
-        users.findOne({ id: id }).run(function (err, user) {
+        users.findById(id, function (err, user) {
             done(err, user);
         });
     });
 
+    function isAuthenticated(req, res, next) {
+        if (req.isAuthenticated()) { return next(); }
+        res.redirect('/login')
+    }
+
+    var isInRole = function(role) {
+        return function(req, res, next) {
+            req.user.role == role
+                ? next()
+                // todo make auth specific error
+                : next(new Error('You are forbidden to see this page.'));
+        }
+    }
+
     app.get('/login', function (req, res) {
         res.render('auth/login', { title: 'Login' });
+    });
+
+    app.get('/logout', function(req, res){
+        req.logout();
+        res.redirect('/');
     });
 
     app.get('/auth/google', passport.authenticate('google'));
@@ -59,6 +78,22 @@ module.exports = function (app, db) {
         users.find({}, function (err, data) {
             res.render('auth/users', { title: 'Administer Users', users: data});
         });
+    });
+
+    app.get('/admin/user/:id', function (req, res) {
+        users.findById(req.params.id, function (err, data) {
+            if (err) {
+                throw new Error('User ' + req.params.id + ' could not be found.');
+            }
+            data.remove();
+            res.redirect('/admin/users');
+        });
+    });
+
+    app.del('/admin/user/:id', function (req, res) {
+        users.findById(req.params.id, function (err, data) {
+            res.send({ success: true });
+        })
     });
 
 };

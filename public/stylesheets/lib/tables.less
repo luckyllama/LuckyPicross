@@ -7,7 +7,7 @@
 // BASELINE STYLES
 // ---------------
 
-table {
+table.normal {
   width: 100%;
   margin-bottom: @baseline;
   padding: 0;
@@ -38,7 +38,7 @@ table {
 
 // CONDENSED VERSION
 // -----------------
-.condensed-table {
+table.condensed-table {
   th,
   td {
     padding: 5px 5px 4px;
@@ -49,7 +49,7 @@ table {
 // BORDERED VERSION
 // ----------------
 
-.bordered-table {
+table.bordered-table {
   border: 1px solid #ddd;
   border-collapse: separate; // Done so we can round those corners!
   *border-collapse: collapse; /* IE7, collapse table to remove spacing */
