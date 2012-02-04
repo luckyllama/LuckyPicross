@@ -2,17 +2,23 @@
 html
   head
     title= title
-    link(rel='stylesheet/less', href='/stylesheets/lib/bootstrap.less')
+    link(rel='stylesheet/less', href='/bootstrap/less/bootstrap.less')
     link(rel='stylesheet/less', type='text/css', href='/stylesheets/site.less')
     link(rel='stylesheet/less', type='text/css', href='/stylesheets/game.less')
     script(src='/javascripts/lib/less-1.2.1.min.js')
     script(src='/javascripts/lib/modernizr-2.0.6-development-only.js')
     block head
   body
-    .topbar
-        .fill
+    .navbar.navbar-fixed-top
+        .navbar-inner
             .container
                 a.brand LuckyPicross
+                .nav-collapse
+                    .navbar-text.pull-right
+                        if user
+                            span logged in as #{user.name}
+                        else
+                            a(href='/login?return='+currentUrl) login
 
     .container
         .content
@@ -20,7 +26,7 @@ html
                 h1
                     block page-header
             .row
-                .span16
+                .span12
                     block main-content
             .row
                 block secondary-content

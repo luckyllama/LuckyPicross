@@ -5,10 +5,10 @@ block page-header
 
 block main-content
     div#response
-    table.normal
+    table.table
         thead
             tr
-                th User Id
+                th Provider
                 th Display Name
                 th Name
                 th Emails
@@ -18,7 +18,7 @@ block main-content
             tbody
                 - each user in users
                   tr
-                    td.user-id= user.userId
+                    td.user-id= user.provider
                     td.display-name= user.displayName
                     td.name= user.name.givenName + ' ' + user.name.familyName
                     td.email= user.emails[0].value
@@ -40,11 +40,14 @@ append scripts
                 var link = $(this);
                 $.ajax(link.attr('href'), { type: 'DELETE'})
                     .done(function (data) {
+                        var $closeLink = $('<a>').addClass('close').text('x');
                         if (data.success) {
                             link.closest('tr').remove();
-                            $('#response').html($('<div>').addClass('alert-message success').text('User has been deleted.'));
+                            $('#response').html($('<div>').addClass('alert alert-success')
+                                .text('User has been deleted.').append($closeLink));
                         } else {
-                            $('#response').html($('<div>').addClass('alert-message error').text('Could not delete user.'));
+                            $('#response').html($('<div>').addClass('alert alert-error')
+                                .text('Could not delete user.').append($closeLink));
                         }
                     });
                 return false;

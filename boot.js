@@ -33,6 +33,15 @@ var bootApplication = function (app) {
     app.configure('production', function(){
         app.use(express.errorHandler());
     });
+
+    app.dynamicHelpers({
+        user: function(req, res){
+            return req.user;
+        },
+        currentUrl: function (req, res) {
+            return req.url;
+        }
+    });
 }
 
 var bootRoutes = function (app, db) {

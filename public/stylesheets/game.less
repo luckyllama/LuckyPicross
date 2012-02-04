@@ -1,5 +1,4 @@
-@import "lib/mixins.less";
-@import "lib/variables.less";
+@import "mixins.less";
 
 .background-color-ease-in (@time) {
 	transition: background-color @time ease-in;
@@ -29,12 +28,12 @@
 			.background-color-ease-in(.1s);
 		}
 		td.hover {
-			background-color: @grayLighter;
+			background-color: #f5f5f5;
 		}
 
 		.hints {
 			td {
-                border: 1px solid @grayLighter;
+                border: 1px solid #f5f5f5;
 				span {
 
 				}
@@ -62,13 +61,13 @@
 		.board {
 			vertical-align: top;
 			td {
-				border: solid 1px @grayLighter;
+				border: solid 1px #f5f5f5;
 			}
             td.filled {
-                background-color: @baseColor;
+                background-color: green;
             }
             td.marked {
-                background-color: @split1;
+                background-color: red;
             }
 		}
 	}
