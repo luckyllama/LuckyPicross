@@ -63,11 +63,15 @@ module.exports = function (app, db) {
     });
 
     app.get('/logout', function(req, res){
+        var returnUrl = req.param('return') || '/';
         req.logout();
-        res.redirect('/');
+        res.redirect(returnUrl);
     });
 
-    app.get('/auth/google', passport.authenticate('google'));
+    app.get('/auth/google', function (req, res, next) {
+        req.session.returnUrl = req.param('return') || '/';
+        passport.authenticate('google')(req, res, next);
+    });
 
     app.get('/auth/google/return', function (req, res, next) {
         var returnUrl = req.session.returnUrl || '/';
@@ -77,7 +81,7 @@ module.exports = function (app, db) {
                 return returnUrl;
             }(),
             failureRedirect: '/login' }
-        )(req, res, next)
+        )(req, res, next);
     });
 
     app.get('/admin/users', isLoggedIn, function (req, res) {
@@ -87,7 +91,7 @@ module.exports = function (app, db) {
     });
 
     var deleteUser = function (req, res) {
-        return function (err, data) {
+        users.findById(req.params.id, function (err, data) {
             if (err) {
                 throw new Error('User ' + req.params.id + ' could not be found.');
             }
@@ -99,15 +103,11 @@ module.exports = function (app, db) {
             } else {
                 res.send({ success: true });
             }
-        };
+        });
     };
 
-    app.get('/admin/user/:id', isLoggedIn, function (req, res) {
-        users.findById(req.params.id, deleteUser(req, res));
-    });
+    app.get('/admin/user/:id', isLoggedIn, deleteUser);
 
-    app.del('/admin/user/:id', isLoggedIn, function (req, res) {
-        users.findById(req.params.id, deleteUser(req, res))
-    });
+    app.del('/admin/user/:id', isLoggedIn, deleteUser);
 
 };

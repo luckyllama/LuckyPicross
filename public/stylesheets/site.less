@@ -1,13 +1,41 @@
 @import "mixins.less";
 
-
 html, body {
     background-color: #eee;
 }
 body {
     padding-top: 40px;
 }
-
+.navbar {
+    ul.nav.auth {
+        p {
+            padding: 3px 15px;
+            margin: .5em 0;
+        }
+    }
+    .login {
+        p { width: 200px; }
+        li.btn-container {
+            text-align: center;
+            a.google {
+                line-height: 26px;
+                margin: 5px 0;
+                width: 100px;
+                span {
+                    background: url(images/google-icon.png) center left no-repeat;
+                    padding-left: 20px;
+                }
+                // had to duplicate these from bootstrap to override dropdown styling
+                display: inline-block;
+                &:hover {
+                    color: #333;
+                    background-color: darken(#fff, 10%);
+                    background-position: 0 -15px;
+                }
+            }
+        }
+    }
+}
 .content {
     background-color: #fff;
     padding: 20px;

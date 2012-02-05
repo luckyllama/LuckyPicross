@@ -1,12 +1,16 @@
-extends ../layout
-
-block page-header
-    = title
-
-block main-content
-    p
-        a(href='/auth/google') Sign In with Google
-
-append scripts
-    script
-        $(function () {});
+ul.nav.pull-right.auth
+    if user
+        li.dropdown.logout
+            a.dropdown-toggle(href='#logout', data-toggle='dropdown')= user.displayName
+                b.caret
+            ul.dropdown-menu
+                li: p Done for now?
+                li.divider: li: a(href='/logout?return='+currentUrl) logout
+    else
+        li.dropdown.login
+            a.dropdown-toggle(href='#login', data-toggle='dropdown') login
+                b.caret
+            ul.dropdown-menu
+                li: p No need to sign up, just sign in with an account you already have!
+                li.divider
+                li.btn-container: a(href='/auth/google?return='+currentUrl,class='btn google'): span Google
