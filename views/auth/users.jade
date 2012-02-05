@@ -8,24 +8,29 @@ block main-content
     table.table
         thead
             tr
-                th Provider
-                th Display Name
-                th Name
-                th Emails
-                th Roles
-                th Actions
+                th.span2 Provider
+                th.span2 Display Name
+                th.span2 Name
+                th.span3 Emails
+                th.span2 Roles
+                th.span1 Actions
         if users.length > 0
             tbody
                 - each user in users
                   tr
-                    td.user-id= user.provider
+                    td.provider= user.provider
                     td.display-name= user.displayName
                     td.name= user.name.givenName + ' ' + user.name.familyName
                     td.email= user.emails[0].value
                         if user.emails.length > 1
                             div and #{user.emails.length - 1} more
-                    td.roles
-                        span tbd
+                    td.role
+                        select.span2(data-url='/admin/user/#{user._id}')
+                            - each role in roles
+                                if user.role == role
+                                    option(selected)= role
+                                else
+                                    option= role
                     td.actions
                         a.delete(href='/admin/user/#{user._id}') Delete
         else
@@ -34,4 +39,6 @@ block main-content
 
 
 append scripts
-    script
+    script(src='/javascripts/adminUsers.js')
+    script(src='/bootstrap/js/bootstrap-alert.js')
+    script(src='/bootstrap/js/bootstrap-transition.js')

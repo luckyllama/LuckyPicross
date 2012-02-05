@@ -13,6 +13,7 @@ var Email = new Schema({
 
 var User = new Schema({
     id:          { type: ObjectId, index: true },
+    provider:    { type: String },
     userId:      { type: String, index: true },
     displayName: { type: String },
     name:        {

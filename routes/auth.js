@@ -44,17 +44,15 @@ module.exports = function (app, db) {
         });
     });
 
-    function isLoggedIn(req, res, next) {
+    var isLoggedIn = function (req, res, next) {
         if (req.isAuthenticated()) { return next(); }
         var returnUrl = '?return=' + (req.method === 'GET' ? req.url || '/' : '/');
         res.redirect('/login' + returnUrl)
     }
 
-    var isInRole = function(role) {
-        return function(req, res, next) {
-            req.user.role == role ? next()
-                : next(new Error('You are forbidden to see this page.'));
-        }
+    var isAdmin = function(req, res, next) {
+        if (req.user.role === roles.admin) { return next(); }
+        return next(new Error('You are forbidden to see this page.'));
     }
 
     app.get('/login', function (req, res) {
@@ -69,7 +67,7 @@ module.exports = function (app, db) {
     });
 
     app.get('/auth/google', function (req, res, next) {
-        req.session.returnUrl = req.param('return') || '/';
+        req.session.returnUrl = req.param('return') || req.session.returnUrl || '/';
         passport.authenticate('google')(req, res, next);
     });
 
@@ -84,9 +82,9 @@ module.exports = function (app, db) {
         )(req, res, next);
     });
 
-    app.get('/admin/users', isLoggedIn, function (req, res) {
+    app.get('/admin/users', isLoggedIn, isAdmin, function (req, res) {
         users.find({}, function (err, data) {
-            res.render('auth/users', { title: 'Administer Users', users: data});
+            res.render('auth/users', { title: 'Administer Users', users: data, roles: roles});
         });
     });
 
@@ -106,8 +104,18 @@ module.exports = function (app, db) {
         });
     };
 
-    app.get('/admin/user/:id', isLoggedIn, deleteUser);
+    app.get('/admin/user/:id', isLoggedIn, isAdmin, deleteUser);
 
-    app.del('/admin/user/:id', isLoggedIn, deleteUser);
+    app.del('/admin/user/:id', isLoggedIn, isAdmin, deleteUser);
+
+    app.post('/admin/user/:id', isLoggedIn, isAdmin, function (req, res) {
+        var role = req.body.role || roles.member;
+        users.update({ _id: req.params.id }, { role: role }, { multi: false }, function (err) {
+            if (err) {
+                throw new Error('User ' + req.params.id + ' could not be found.');
+            }
+            res.send({ success: true });
+        });
+    });
 
 };
