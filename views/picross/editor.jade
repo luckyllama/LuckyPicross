@@ -12,8 +12,38 @@ block main-content
             tr
                 td.side.hints
                 td.board
+block secondary-content
+    .span6
+        form.form-horizontal
+            fieldset#puzzle-size
+                legend Size
+                .control-group
+                    .btn-group.offset1(data-toggle='buttons-radio')
+                        button.btn(value='5', type='button') 5x5
+                        button.btn.active(value='10', type='button') 10x10
+                        button.btn(value='15', type='button') 15x15
+                        button.btn(value='20', type='button') 20x20
+                        button.btn(value='25', type='button') 25x25
+    .span6
+        form.form-horizontal
+            fieldset#puzzle-details
+                legend Save Puzzle
+                .control-group
+                    label.control-label Name
+                    .controls
+                        input.input-xlarge(type='text', id='name')
+                .control-group
+                    label.control-label Lives
+                    .controls
+                        TBD
+                .control-group
+                    label.control-label Time
+                    .controls
+                        TBD
+
 
 append scripts
+    script(src='/bootstrap/js/bootstrap-button.js')
     script
         $(function () {
             var game = new Picross(".picross-game", { editorMode: true, debugMode: true });

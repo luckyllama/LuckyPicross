@@ -31,10 +31,10 @@ window.Picross = (function ($) {
             this.bindEvents();
         },
         render: function () {
-            this.gameArea.$game.addClass('size-' + this.options.width + '-' + this.options.height);
-            this.gameArea.$board.append(createBoardTable(this.options.height, this.options.width));
-            this.gameArea.$topHints.append(createTopHintsTable(this.options.width));
-            this.gameArea.$sideHints.append(createSideHintsTable(this.options.height));
+            this.gameArea.$game.attr('class', 'picross-game size-' + this.options.width + '-' + this.options.height);
+            this.gameArea.$board.html(createBoardTable(this.options.height, this.options.width));
+            this.gameArea.$topHints.html(createTopHintsTable(this.options.width));
+            this.gameArea.$sideHints.html(createSideHintsTable(this.options.height));
         },
         bindEvents: function () {
             var self = this;
@@ -82,6 +82,16 @@ window.Picross = (function ($) {
             });
 
             this.gameArea.$game.on('contextmenu.picross', function () { return false; });
+
+            if (this.options.editorMode) {
+                var self = this;
+                $('#puzzle-size').on('click.picross', 'button', function () {
+                    var size = $(this).val();
+                    self.options.width = self.options.height = size;
+                    self.render();
+                    self.updateHints();
+                });
+            }
         },
         updateHints: function () {
             var self = this;

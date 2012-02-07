@@ -12,7 +12,7 @@ html
     .navbar.navbar-fixed-top
         .navbar-inner
             .container
-                a.brand LuckyPicross
+                a.brand(href='/') LuckyPicross
                 ul.nav
                     li: a(href='/editor') editor
                     if user && user.role === 'admin'
