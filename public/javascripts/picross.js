@@ -1,6 +1,8 @@
 ﻿
 window.Picross = (function ($) {
 
+    "use strict";
+
     var defaults = {
         editorMode: false,
         width: 10,
@@ -136,6 +138,7 @@ window.Picross = (function ($) {
                 $('<td>')
                     .addClass('col-' + colIndex + ' row-' + rowIndex)
                     .data({ col: colIndex, row: rowIndex })
+                    .html($('<span>').html('&times;'))
                     .appendTo($row);
             }
             $row.appendTo($table);
@@ -175,4 +178,4 @@ window.Picross = (function ($) {
     });
 
     return picross;
-})(jQuery);
+})(window.jQuery);
