@@ -47,6 +47,6 @@ append scripts
     script(src='/bootstrap/js/bootstrap-button.js')
     script
         $(function () {
-            var game = new Picross(".picross-game", { editorMode: true, debugMode: true });
-            console.log(game);
+            var Picross = App.module('Picross');
+            var game = new Picross.View({ el: '.picross-game', game: { editorMode: true } });
         });

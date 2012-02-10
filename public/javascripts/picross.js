@@ -1,98 +1,43 @@
 ﻿
-window.Picross = (function ($) {
-
+(function ($, Picross) {
     "use strict";
 
-    var defaults = {
-        editorMode: false,
-        width: 10,
-        height: 10,
-        debugMode: false
-    };
+    Picross.Model = Backbone.Model.extend({
+        defaults: {
+            board: '',
+            height: 10,
+            width: 10,
+            editorMode: false
+        },
+        initialize: function () {}
+    });
 
-    var picross = Class.extend({
-        init: function (gameSelector, options) {
-            this.options = $.extend({}, defaults, options);
-
-            this.gameState = new gameState(this.options.width, this.options.height, '');
+    Picross.View = Backbone.View.extend({
+        initialize: function(){
+            this.model = new Picross.Model(this.options.game);
             this.inputState = {
                 leftMouseDown: false,
                 rightMouseDown: false,
                 shiftKeyDown: false
             };
 
-            var $game = $(gameSelector);
             this.gameArea = {
-                $game: $(gameSelector),
-                $board: $('.board', $game),
-                $topHints: $('.top.hints', $game),
-                $sideHints: $('.side.hints', $game)
+                $board: this.$('.board'),
+                $topHints: this.$('.top.hints'),
+                $sideHints: this.$('.side.hints')
             };
             this.render();
-            this.updateHints();
-            this.bindEvents();
         },
         render: function () {
-            this.gameArea.$game.attr('class', 'picross-game size-' + this.options.width + '-' + this.options.height);
-            this.gameArea.$board.html(createBoardTable(this.options.height, this.options.width));
-            this.gameArea.$topHints.html(createTopHintsTable(this.options.width));
-            this.gameArea.$sideHints.html(createSideHintsTable(this.options.height));
-        },
-        bindEvents: function () {
-            var self = this;
-            this.gameArea.$game.on('hover.picross', 'td', function () {
-                var toggleHover = function ($el, align) {
-                    var alignIndex = $el.data(align);
-                    if (alignIndex !== 'undefined') {
-                        $('.' + align + '-' + alignIndex, self.gameArea.$game).toggleClass('hover');
-                    }
-                };
-                toggleHover($(this), 'col');
-                toggleHover($(this), 'row');
-            });
-            var updateSquare = function ($el) {
-                if (self.inputState.leftMouseDown && !self.inputState.shiftKeyDown) {
-                    if ($el.is('.marked')) {
-                        $el.removeClass('marked');
-                    } else {
-                        $el.toggleClass('filled', !$el.is('.filled'));
-                    }
-                } else if (self.inputState.rightMouseDown || (self.inputState.leftMouseDown && self.inputState.shiftKeyDown)) {
-                    if ($el.is('.filled')) {
-                        $el.removeClass('filled');
-                    } else {
-                        $el.toggleClass('marked', !$el.is('.marked'));
-                    }
-                }
-            }
-            this.gameArea.$board.on('mousedown.picross', 'td', function (event) {
-                self.inputState.leftMouseDown = event.button === 0; // left mouse button
-                self.inputState.rightMouseDown = event.button === 2; // right mouse button
-                self.inputState.shiftKeyDown = event.shiftKey;
-                updateSquare($(this));
-                return false;
-            });
-            this.gameArea.$board.on('mouseup.picross', function (event) {
-                self.inputState.leftMouseDown = false;
-                self.inputState.rightMouseDown = false;
-                self.inputState.shiftKeyDown = event.shiftKeyDown;
-                self.updateHints();
-            });
+            this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
+            this.gameArea.$board.html(ViewRenderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
+            this.gameArea.$topHints.html(ViewRenderHelper.createTopHintsTable(this.model.get('width')));
+            this.gameArea.$sideHints.html(ViewRenderHelper.createSideHintsTable(this.model.get('height')));
 
-            this.gameArea.$board.on('mouseenter.picross', 'td', function (event) {
-                updateSquare($(this));
-            });
+            this.updateHints();
 
-            this.gameArea.$game.on('contextmenu.picross', function () { return false; });
-
-            if (this.options.editorMode) {
-                var self = this;
-                $('#puzzle-size').on('click.picross', 'button', function () {
-                    var size = $(this).val();
-                    self.options.width = self.options.height = size;
-                    self.render();
-                    self.updateHints();
-                });
+            if (this.model.get('editorMode')) {
+                this.sizeView = new Picross.SizeView({ parent: this });
             }
         },
         updateHints: function () {
@@ -120,62 +65,107 @@ window.Picross = (function ($) {
             calculateHints(this.gameArea.$topHints, 'col');
             calculateHints(this.gameArea.$sideHints, 'row');
         },
-        log: function () {
-            if (this.options.debugMode) {
-                try {
-                    var args = Array.prototype.slice.call(arguments);
-                    window.console.debug.apply(window.console, args);
-                } catch (e) { }
+
+        events: {
+            'hover.picross td' : function (ev) {
+                var $td = $(ev.currentTarget);
+                var toggleHover = function (view, $td, align) {
+                    var alignIndex = $td.data(align);
+                    if (alignIndex !== 'undefined') {
+                        view.$('.' + align + '-' + alignIndex).toggleClass('hover');
+                    }
+                };
+                toggleHover(this, $td, 'col');
+                toggleHover(this, $td, 'row');
+            },
+            'mousedown.picross .board td' : function (ev) {
+                this.inputState.leftMouseDown = event.button === 0; // left mouse button
+                this.inputState.rightMouseDown = event.button === 2; // right mouse button
+                this.inputState.shiftKeyDown = event.shiftKey;
+                this.updateSquare($(ev.currentTarget));
+                return false;
+            },
+            'mouseup.picross .board td' : function (ev) {
+                this.inputState.leftMouseDown = false;
+                this.inputState.rightMouseDown = false;
+                this.inputState.shiftKeyDown = event.shiftKeyDown;
+                this.updateHints();
+            },
+            'mouseenter.picross .board td' : function (ev) {
+                this.updateSquare($(ev.currentTarget));
+            },
+            'contextmenu.picross': function () { return false; }
+        },
+        updateSquare: function ($td) {
+            if (this.inputState.leftMouseDown && !this.inputState.shiftKeyDown) {
+                if ($td.is('.marked')) {
+                    $td.removeClass('marked');
+                } else {
+                    $td.toggleClass('filled', !$td.is('.filled'));
+                }
+            } else if (this.inputState.rightMouseDown || (this.inputState.leftMouseDown && this.inputState.shiftKeyDown)) {
+                if ($td.is('.filled')) {
+                    $td.removeClass('filled');
+                } else {
+                    $td.toggleClass('marked', !$td.is('.marked'));
+                }
+            }
+        }
+
+    });
+
+    Picross.SizeView = Backbone.View.extend({
+        el: '#puzzle-size',
+        initialize: function () {
+            this.parent = this.options.parent;
+        },
+        events: {
+            'click button' : function (ev) {
+                var size = $(ev.currentTarget).val();
+                this.parent.model.set({ width: size, height: size });
+                this.parent.render();
             }
         }
     });
 
-    var createBoardTable = function (height, width) {
-        var $table = $('<table>');
-        for (var rowIndex = 0; rowIndex < height; rowIndex++) {
-            var $row = $('<tr>').addClass('row-' + rowIndex);
+    var ViewRenderHelper = {
+        createBoardTable: function (height, width) {
+            var $table = $('<table>');
+            for (var rowIndex = 0; rowIndex < height; rowIndex++) {
+                var $row = $('<tr>').addClass('row-' + rowIndex);
+                for (var colIndex = 0; colIndex < width; colIndex++) {
+                    $('<td>')
+                        .addClass('col-' + colIndex + ' row-' + rowIndex)
+                        .data({ col: colIndex, row: rowIndex })
+                        .html($('<span>').html('&times;'))
+                        .appendTo($row);
+                }
+                $row.appendTo($table);
+            }
+            return $table;
+        },
+        createTopHintsTable: function (width) {
+            var $table = $('<table>');
+            var $row = $('<tr>').appendTo($table);
             for (var colIndex = 0; colIndex < width; colIndex++) {
-                $('<td>')
-                    .addClass('col-' + colIndex + ' row-' + rowIndex)
-                    .data({ col: colIndex, row: rowIndex })
-                    .html($('<span>').html('&times;'))
+                $('<td>').addClass('col-' + colIndex)
+                    .data({ col: colIndex })
                     .appendTo($row);
             }
-            $row.appendTo($table);
+            return $table;
+        },
+        createSideHintsTable: function (height) {
+            var $table = $('<table>');
+            for (var rowIndex = 0; rowIndex < height; rowIndex++) {
+                var $row = $('<tr>').appendTo($table);
+                $('<td>').addClass('row-' + rowIndex)
+                    .data({ row: rowIndex })
+                    .appendTo($row);
+                $row.appendTo($table);
+            }
+            return $table;
         }
-        return $table;
     };
 
-    var createTopHintsTable = function (width) {
-        var $table = $('<table>');
-        var $row = $('<tr>').appendTo($table);
-        for (var colIndex = 0; colIndex < width; colIndex++) {
-            $('<td>').addClass('col-' + colIndex)
-                .data({ col: colIndex })
-                .appendTo($row);
-        }
-        return $table;
-    };
 
-    var createSideHintsTable = function (height) {
-        var $table = $('<table>');
-        for (var rowIndex = 0; rowIndex < height; rowIndex++) {
-            var $row = $('<tr>').appendTo($table);
-            $('<td>').addClass('row-' + rowIndex)
-                .data({ row: rowIndex })
-                .appendTo($row);
-            $row.appendTo($table);
-        }
-        return $table;
-    };
-
-    var gameState = Class.extend({
-        init: function (width, height, board) {
-            this.width = width;
-            this.height = height;
-            this.board = board;
-        }
-    });
-
-    return picross;
-})(window.jQuery);
+})(window.jQuery, App.module('Picross'));
