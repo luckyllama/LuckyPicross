@@ -4,10 +4,13 @@
 
     Picross.Model = Backbone.Model.extend({
         defaults: {
-            board: '',
+            board: [],
+            name: '',
+            lives: 5,
+            maxTime: null,
             height: 10,
             width: 10,
-            editorMode: false
+            editorMode: false,
         },
         initialize: function () {}
     });
@@ -90,6 +93,9 @@
                 this.inputState.rightMouseDown = false;
                 this.inputState.shiftKeyDown = event.shiftKeyDown;
                 this.updateHints();
+                if (this.model.get('editorMode')) {
+                    this.updateBoardState();
+                }
             },
             'mouseenter.picross .board td' : function (ev) {
                 this.updateSquare($(ev.currentTarget));
@@ -110,6 +116,13 @@
                     $td.toggleClass('marked', !$td.is('.marked'));
                 }
             }
+        },
+        updateBoardState: function () {
+            var state = [];
+            $('td', this.gameArea.$board).each(function (index, el) {
+                state.push($(el).is('.filled'));
+            });
+            this.model.set({ board: state });
         }
 
     });

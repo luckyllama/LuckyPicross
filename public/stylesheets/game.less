@@ -73,10 +73,8 @@
 	            span {
 	                display: block;
 	                color: #e55;
-	                height: 94%;
-	                width: 94%;
-	                margin: 3% 0 0 3%;
-	                border-radius: 4px;
+	                height: 100%;
+	                width: 100%;
 	                text-align: center;
 	                text-indent: -100px;
 	                overflow: hidden;
@@ -89,19 +87,33 @@
                 border-left: solid 2px #ccc;
             }
             td.filled span {
-                background-color: #5bc0de;
-                background-image: linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);
-                background-image: -o-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);
-                background-image: -moz-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);
-                background-image: -webkit-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);
-                background-image: -ms-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);
+                /*background-color: #5bc0de;*/
+                /*background-image: linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
+                /*background-image: -o-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
+                /*background-image: -moz-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
+                /*background-image: -webkit-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
+                /*background-image: -ms-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
+
+                /*background-image: -webkit-gradient(*/
+                    /*linear,*/
+                    /*left bottom,*/
+                    /*left top,*/
+                    /*color-stop(0.33, rgb(91,192,222)),*/
+                    /*color-stop(0.67, rgb(68,171,199))*/
+                /*);*/
+                background-image: linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+                background-image: -o-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+                background-image: -moz-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+                background-image: -webkit-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+                background-image: -ms-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
 
                 background-image: -webkit-gradient(
-                    linear,
-                    left bottom,
-                    left top,
-                    color-stop(0.33, rgb(91,192,222)),
-                    color-stop(0.67, rgb(68,171,199))
+                	linear,
+                	left bottom,
+                	left top,
+                	color-stop(0.05, #2093B0),
+                	color-stop(0.15, #44ABC7),
+                	color-stop(0.64, #60CEEF)
                 );
             }
             td.marked span {
