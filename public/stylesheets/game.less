@@ -6,6 +6,22 @@
 	-o-transition: background-color @time ease-in;
 	-webkit-transition: background-color @time ease-in;
 }
+.background-filled {
+    background-image: linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+    background-image: -o-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+    background-image: -moz-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+    background-image: -webkit-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+    background-image: -ms-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.05, #2093B0),
+        color-stop(0.15, #44ABC7),
+        color-stop(0.64, #60CEEF)
+    );
+}
 
 .picross-game {
 	border: solid 1px #eee;
@@ -87,34 +103,7 @@
                 border-left: solid 2px #ccc;
             }
             td.filled span {
-                /*background-color: #5bc0de;*/
-                /*background-image: linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
-                /*background-image: -o-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
-                /*background-image: -moz-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
-                /*background-image: -webkit-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
-                /*background-image: -ms-linear-gradient(bottom, rgb(91,192,222) 33%, rgb(68,171,199) 67%);*/
-
-                /*background-image: -webkit-gradient(*/
-                    /*linear,*/
-                    /*left bottom,*/
-                    /*left top,*/
-                    /*color-stop(0.33, rgb(91,192,222)),*/
-                    /*color-stop(0.67, rgb(68,171,199))*/
-                /*);*/
-                background-image: linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
-                background-image: -o-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
-                background-image: -moz-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
-                background-image: -webkit-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
-                background-image: -ms-linear-gradient(bottom, #2093B0 5%, #44ABC7 15%, #60CEEF 64%);
-
-                background-image: -webkit-gradient(
-                	linear,
-                	left bottom,
-                	left top,
-                	color-stop(0.05, #2093B0),
-                	color-stop(0.15, #44ABC7),
-                	color-stop(0.64, #60CEEF)
-                );
+                .background-filled;
             }
             td.marked span {
                 text-indent: 0;
@@ -151,4 +140,23 @@
     &.size-25-25 .top.hints td  { width: @size-25-25; }
     &.size-25-25 .board td      { height: @size-25-25; width: @size-25-25; }
     &.size-25-25 .board span    { font-size: 30px; line-height: .35; }
+
+}
+#puzzle-details {
+    span.life {
+        background: url(images/life.png) no-repeat;
+        display: inline-block;
+        height: 50px;
+        width: 50px;
+
+        &.off {
+            background-position: 0 -50px;
+        }
+    }
+    #time {
+        text-align: center;
+    }
+    button.save {
+        margin-right: 4px;
+    }
 }

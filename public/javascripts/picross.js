@@ -4,13 +4,13 @@
 
     Picross.Model = Backbone.Model.extend({
         defaults: {
-            board: [],
+            board: '',
             name: '',
             lives: 5,
             maxTime: null,
             height: 10,
             width: 10,
-            editorMode: false,
+            editorMode: false
         },
         initialize: function () {}
     });
@@ -23,16 +23,18 @@
                 rightMouseDown: false,
                 shiftKeyDown: false
             };
+            this.render();
+        },
+        render: function () {
+            this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
+            this.$el.html(ViewRenderHelper.createGameArea());
 
             this.gameArea = {
                 $board: this.$('.board'),
                 $topHints: this.$('.top.hints'),
                 $sideHints: this.$('.side.hints')
             };
-            this.render();
-        },
-        render: function () {
-            this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
+
             this.gameArea.$board.html(ViewRenderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
             this.gameArea.$topHints.html(ViewRenderHelper.createTopHintsTable(this.model.get('width')));
             this.gameArea.$sideHints.html(ViewRenderHelper.createSideHintsTable(this.model.get('height')));
@@ -41,6 +43,7 @@
 
             if (this.model.get('editorMode')) {
                 this.sizeView = new Picross.SizeView({ parent: this });
+                this.detailsView = new Picross.DetailsView({ parent: this });
             }
         },
         updateHints: function () {
@@ -118,9 +121,9 @@
             }
         },
         updateBoardState: function () {
-            var state = [];
+            var state = '';
             $('td', this.gameArea.$board).each(function (index, el) {
-                state.push($(el).is('.filled'));
+                state += $(el).is('.filled') ? '1' : '0';
             });
             this.model.set({ board: state });
         }
@@ -141,7 +144,63 @@
         }
     });
 
+    Picross.DetailsView = Backbone.View.extend({
+        el: '#puzzle-details',
+        initialize: function () {
+            this.parent = this.options.parent;
+            this.$('#time').forceNumeric();
+        },
+        events: {
+            'click span.life' : function (ev) {
+                var $lives = this.$('span.life');
+                var clickedIndex = $lives.index(ev.currentTarget);
+                this.$('span.life').each(function (index) {
+                    $(this).toggleClass('off', index > clickedIndex);
+                });
+            },
+            'click button.save' : function (ev) {
+                var name = this.$('#name').val();
+                var time = this.$('#time').val();
+                if (!$.isNumeric(time)) { time = null };
+                var lives = this.$('span.life:not(.off)').length;
+                this.parent.model.set({ name: name, time: time, lives: lives });
+                console.log(this.parent.model);
+            },
+            'click button.reset' : function (ev) {
+                this.$('#time').val('\u221E');
+                this.parent.render();
+            },
+            'focus input#time' : function (ev) {
+                var input = $(ev.currentTarget);
+                if (input.val() === '\u221E') {
+                    input.val('');
+                }
+            },
+            'blur input#time' : function (ev) {
+                var input = $(ev.currentTarget);
+                if (input.val().trim() === '') {
+                    input.val('\u221E');
+                }
+            }
+        }
+    });
+
     var ViewRenderHelper = {
+        createGameArea: function () {
+            return $('<table>').append(
+                $('<tr>').append(
+                    $('<td>').addClass('controls')
+                ).append(
+                    $('<td>').addClass('top hints')
+                )
+            ).append(
+                $('<tr>').append(
+                    $('<td>').addClass('side hints')
+                ).append(
+                    $('<td>').addClass('board')
+                )
+            );
+        },
         createBoardTable: function (height, width) {
             var $table = $('<table>');
             for (var rowIndex = 0; rowIndex < height; rowIndex++) {
@@ -177,6 +236,29 @@
                 $row.appendTo($table);
             }
             return $table;
+        }
+    };
+
+    var StateHelper = {
+        encode: function (input) {
+            var result = '';
+            for (var index = 0, length = input.length; index < length; index += 4) {
+                var sub = input.substr(index, 4);
+                sub = sub + "0000".substr(0, 4 - sub.length);
+                var hex = parseInt(sub, 2).toString(16);
+                result += hex;
+            }
+            return result;
+        },
+        decode: function (input, maxLength) {
+            var result = '';
+            for (var index = 0, length = input.length; index < length; index++) {
+                var sub = input.substr(index, 1);
+                var bit = parseInt(sub, 16).toString(2);
+                bit = "0000".substr(0, 4 - bit.length) + bit;
+                result += bit;
+            }
+            return result.substr(0, maxLength);
         }
     };
 

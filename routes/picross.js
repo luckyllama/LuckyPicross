@@ -11,5 +11,9 @@ module.exports = function (app, db) {
 
     });
 
+    app.get('/game', function (req, res) {
+    	res.render('picross/game', { title: 'Picross'});
+    })
+
 };
 

@@ -1,0 +1,17 @@
+extends ../layout
+
+block page-header
+    = title
+
+block main-content
+    .picross-game
+block secondary-content
+
+
+append scripts
+    script(src='/bootstrap/js/bootstrap-button.js')
+    script
+        $(function () {
+            var Picross = App.module('Picross');
+            var game = new Picross.View({ el: '.picross-game', game: { editorMode: false } });
+        });
