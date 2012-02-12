@@ -125,7 +125,7 @@
             $('td', this.gameArea.$board).each(function (index, el) {
                 state += $(el).is('.filled') ? '1' : '0';
             });
-            this.model.set({ board: state });
+            this.model.set({ board: StateHelper.encode(state) });
         }
 
     });
