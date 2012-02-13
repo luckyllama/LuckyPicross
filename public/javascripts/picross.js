@@ -5,6 +5,7 @@
     Picross.Model = Backbone.Model.extend({
         defaults: {
             board: '',
+            hash: '',
             name: '',
             lives: 5,
             maxTime: null,
@@ -12,17 +13,26 @@
             width: 10,
             editorMode: false
         },
-        initialize: function () {}
+        initialize: function () {
+            if (!this.editorMode) {
+                this.set({ board: StateHelper.decode(this.get('hash'), this.get('height') * this.get('width')) });
+            }
+        },
+        canBeFilled: function (index) {
+            return this.get('board').charAt(index) === '1';
+        }
     });
+
+    var inputState = {
+        none : 'none',
+        fill : 'fill',
+        mark : 'mark'
+    }
 
     Picross.View = Backbone.View.extend({
         initialize: function(){
             this.model = new Picross.Model(this.options.game);
-            this.inputState = {
-                leftMouseDown: false,
-                rightMouseDown: false,
-                shiftKeyDown: false
-            };
+            this.inputEvent = inputState.none;
             this.render();
         },
         render: function () {
@@ -44,7 +54,45 @@
             if (this.model.get('editorMode')) {
                 this.sizeView = new Picross.SizeView({ parent: this });
                 this.detailsView = new Picross.DetailsView({ parent: this });
+            } else {
+                this.gameStatus = new Picross.GameStatusView({ parent: this });
             }
+        },
+
+        events: {
+            'hover.picross td' : function (ev) {
+                var $td = $(ev.currentTarget);
+                var toggleHover = function (view, $td, align) {
+                    var alignIndex = $td.data(align);
+                    if (alignIndex !== 'undefined') {
+                        view.$('.' + align + '-' + alignIndex).toggleClass('hover');
+                    }
+                };
+                toggleHover(this, $td, 'col');
+                toggleHover(this, $td, 'row');
+            },
+            'mousedown.picross .board td' : function (ev) {
+                if (event.button === 0 && !event.shiftKey) {
+                    this.inputEvent = inputState.fill;
+                } else if (event.button === 0 && event.shiftKey) {
+                    this.inputEvent = inputState.mark;
+                } else if (event.button === 2) {
+                    this.inputEvent = inputState.mark;
+                }
+                this.updateSquare($(ev.currentTarget));
+                return false;
+            },
+            'mouseup.picross .board td' : function (ev) {
+                this.inputEvent = inputState.none;
+                if (this.model.get('editorMode')) {
+                    this.updateHints();
+                    this.updateBoardState();
+                }
+            },
+            'mouseenter.picross .board td' : function (ev) {
+                this.updateSquare($(ev.currentTarget));
+            },
+            'contextmenu.picross': function () { return false; }
         },
         updateHints: function () {
             var self = this;
@@ -54,7 +102,9 @@
                     var alignIndex = $hintArea.data(align);
                     var count = 0;
                     $('td.' + align + '-' + alignIndex, self.gameArea.$board).each(function () {
-                        if($(this).is('.filled')) {
+                        var square = $(this);
+                        var index = $('td', self.gameArea.$board).index(square[0]);
+                        if(square.is('.filled') || self.model.canBeFilled(index)) {
                             count++;
                         } else {
                             if (count) {
@@ -71,48 +121,23 @@
             calculateHints(this.gameArea.$topHints, 'col');
             calculateHints(this.gameArea.$sideHints, 'row');
         },
-
-        events: {
-            'hover.picross td' : function (ev) {
-                var $td = $(ev.currentTarget);
-                var toggleHover = function (view, $td, align) {
-                    var alignIndex = $td.data(align);
-                    if (alignIndex !== 'undefined') {
-                        view.$('.' + align + '-' + alignIndex).toggleClass('hover');
-                    }
-                };
-                toggleHover(this, $td, 'col');
-                toggleHover(this, $td, 'row');
-            },
-            'mousedown.picross .board td' : function (ev) {
-                this.inputState.leftMouseDown = event.button === 0; // left mouse button
-                this.inputState.rightMouseDown = event.button === 2; // right mouse button
-                this.inputState.shiftKeyDown = event.shiftKey;
-                this.updateSquare($(ev.currentTarget));
-                return false;
-            },
-            'mouseup.picross .board td' : function (ev) {
-                this.inputState.leftMouseDown = false;
-                this.inputState.rightMouseDown = false;
-                this.inputState.shiftKeyDown = event.shiftKeyDown;
-                this.updateHints();
-                if (this.model.get('editorMode')) {
-                    this.updateBoardState();
-                }
-            },
-            'mouseenter.picross .board td' : function (ev) {
-                this.updateSquare($(ev.currentTarget));
-            },
-            'contextmenu.picross': function () { return false; }
-        },
         updateSquare: function ($td) {
-            if (this.inputState.leftMouseDown && !this.inputState.shiftKeyDown) {
-                if ($td.is('.marked')) {
-                    $td.removeClass('marked');
-                } else {
+            if ($td.is('.locked')) {
+                return;
+            }
+            if (this.inputEvent === inputState.fill) {
+                if (this.model.get('editorMode')) { // just do it if in editor mode
                     $td.toggleClass('filled', !$td.is('.filled'));
+                } else if ($td.is('.marked:not(.locked)')) { // remove the mark
+                    $td.removeClass('marked');
+                } 
+                var index = $('td', this.gameArea.$board).index($td[0])
+                if (this.model.canBeFilled(index)) { // fill only if legal move
+                    $td.addClass('filled locked');
+                } else {
+                    this.model.set({ lives: this.model.get('lives') - 1 })
                 }
-            } else if (this.inputState.rightMouseDown || (this.inputState.leftMouseDown && this.inputState.shiftKeyDown)) {
+            } else if (this.inputEvent === inputState.mark) {
                 if ($td.is('.filled')) {
                     $td.removeClass('filled');
                 } else {
@@ -121,13 +146,33 @@
             }
         },
         updateBoardState: function () {
-            var state = '';
-            $('td', this.gameArea.$board).each(function (index, el) {
-                state += $(el).is('.filled') ? '1' : '0';
-            });
-            this.model.set({ board: StateHelper.encode(state) });
+            if (this.model.get('editorMode')) {
+                var state = '';
+                $('td', this.gameArea.$board).each(function (index, el) {
+                    state += $(el).is('.filled') ? '1' : '0';
+                });
+                this.model.set({ hash: StateHelper.encode(state) });
+            }
+        },
+        gameOver: function () {
+            // end the game! called from GameStatusView
+            console.log('game over, man, game over');
         }
 
+    });
+
+    Picross.GameStatusView = Backbone.View.extend({
+        el: '#puzzle-status',
+        initialize: function () {
+            this.parent = this.options.parent;
+            this.parent.model.on('change:lives', this.livesChange, this);
+        },
+        livesChange: function () {
+            if (this.parent.model.get('lives') <= 0) {
+                this.parent.gameOver();
+                // stop clock
+            }
+        }
     });
 
     Picross.SizeView = Backbone.View.extend({
@@ -164,7 +209,6 @@
                 if (!$.isNumeric(time)) { time = null };
                 var lives = this.$('span.life:not(.off)').length;
                 this.parent.model.set({ name: name, time: time, lives: lives });
-                console.log(this.parent.model);
             },
             'click button.reset' : function (ev) {
                 this.$('#time').val('\u221E');
