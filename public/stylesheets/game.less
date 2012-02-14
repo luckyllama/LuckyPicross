@@ -22,11 +22,23 @@
         color-stop(0.64, #60CEEF)
     );
 }
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: default;
+    // todo: make work for IE 7/8;
+}
 
 .picross-game {
 	border: solid 1px #eee;
     .border-bottom-radius(10px);
     padding: 20px;
+    .unselectable;
 
 	table {
 		border-collapse: collapse;
@@ -53,6 +65,9 @@
 				span {
 
 				}
+                span.marked {
+                    color: #ccc;
+                }
 			}
 			
 			&.side {
@@ -109,6 +124,9 @@
                 text-indent: 0;
             }
             td.marked.locked span {
+                color: #999;
+            }
+            td.marked.error span {
                 color: #e55;
             }
 		}

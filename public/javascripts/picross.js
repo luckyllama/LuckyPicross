@@ -20,19 +20,60 @@
         },
         canBeFilled: function (index) {
             return this.get('board').charAt(index) === '1';
+        },
+        fill: function (index) {
+            var board = this.get('board');
+            this.set({ board: board.substr(0,index) + '2' + board.substr(index+1)})
+        },
+        hasRowBeenFilled: function (row) {
+            return this.getRowBoard(row).indexOf(1) === -1;
+        },
+        hasColBeenFilled: function (col) {
+            return this.getColBoard(col).indexOf(1) === -1;
+        },
+        hasBeenFilled: function () {
+            var board = this.get('board');
+            return board.indexOf(1) === -1;
+        },
+        getRowBoard: function (row) {
+            var board = this.get('board');
+            var width = this.get('width');
+            return board.substr(row * width, width);
+        }, 
+        getColBoard: function (col) {
+            var board = this.get('board');
+            var height = this.get('height');
+            var width = this.get('width');
+            var result = '';
+            for (var rowIndex = 0; rowIndex < height; rowIndex++) {
+                result += board.substr(rowIndex * width + col, 1);
+            }
+            return result;
         }
     });
 
-    var inputState = {
+    var InputState = {
         none : 'none',
         fill : 'fill',
-        mark : 'mark'
+        mark : 'mark',
+        get : function (ev) {
+            if (event.button === 0 && !event.shiftKey) {
+                return this.fill;
+            } else if (event.button === 0 && event.shiftKey) {
+                return this.mark;
+            } else if (event.button === 2) {
+                return this.mark;
+            }
+        },
+        clear : function () {
+            return this.none;
+        }
     }
 
     Picross.View = Backbone.View.extend({
         initialize: function(){
             this.model = new Picross.Model(this.options.game);
-            this.inputEvent = inputState.none;
+            this.inputEvent = InputState.none;
             this.render();
         },
         render: function () {
@@ -56,6 +97,7 @@
                 this.detailsView = new Picross.DetailsView({ parent: this });
             } else {
                 this.gameStatus = new Picross.GameStatusView({ parent: this });
+                this.modifyKnownSquares();
             }
         },
 
@@ -72,27 +114,35 @@
                 toggleHover(this, $td, 'row');
             },
             'mousedown.picross .board td' : function (ev) {
-                if (event.button === 0 && !event.shiftKey) {
-                    this.inputEvent = inputState.fill;
-                } else if (event.button === 0 && event.shiftKey) {
-                    this.inputEvent = inputState.mark;
-                } else if (event.button === 2) {
-                    this.inputEvent = inputState.mark;
-                }
-                this.updateSquare($(ev.currentTarget));
+                this.inputEvent = InputState.get(ev);
+                this.modifySquare($(ev.currentTarget));
                 return false;
             },
-            'mouseup.picross .board td' : function (ev) {
-                this.inputEvent = inputState.none;
+            'mouseup.picross' : function (ev) {
+                this.inputEvent = InputState.clear();
                 if (this.model.get('editorMode')) {
                     this.updateHints();
                     this.updateBoardState();
                 }
             },
             'mouseenter.picross .board td' : function (ev) {
-                this.updateSquare($(ev.currentTarget));
+                this.modifySquare($(ev.currentTarget));
             },
-            'contextmenu.picross': function () { return false; }
+            'mousedown.picross .hints td span' : function (ev) {
+                if (!this.model.get('editorMode')) {
+                    this.inputEvent = InputState.get(ev);
+                    this.modifyHint($(ev.currentTarget));
+                }
+            },
+            'mouseenter.picross .hints td span' : function (ev) {
+                if (!this.model.get('editorMode')) {
+                    this.modifyHint($(ev.currentTarget));
+                }
+            },
+            'mouseleave.picross' : function (ev) {
+                this.inputEvent = InputState.clear();
+            },
+            'contextmenu.picross' : function (ev) { ev.preventDefault(); }
         },
         updateHints: function () {
             var self = this;
@@ -121,27 +171,82 @@
             calculateHints(this.gameArea.$topHints, 'col');
             calculateHints(this.gameArea.$sideHints, 'row');
         },
-        updateSquare: function ($td) {
+        modifyHint: function ($element) {
+            if ($element.is('.locked')) {
+                return;
+            }
+            if (this.inputEvent !== InputState.none) {
+                $element.toggleClass('marked', !$element.is('.marked'));
+            }
+        },
+        modifyKnownHints : function ($td) {
+            var row = $td.data('row')
+              , col = $td.data('col');
+            if (typeof row !== 'undefined' && this.model.hasRowBeenFilled(row)) {
+                $('td.row-' + row + ' span', this.gameArea.$sideHints).each(function () {
+                    $(this).addClass('marked locked');
+                });
+            }
+            if (typeof col !== 'undefined' && this.model.hasColBeenFilled(col)) {
+                $('td.col-' + col + ' span', this.gameArea.$topHints).each(function () {
+                    $(this).addClass('marked locked');
+                })
+            }
+        },
+        modifySquare: function ($td) {
             if ($td.is('.locked')) {
                 return;
             }
-            if (this.inputEvent === inputState.fill) {
+            if (this.inputEvent === InputState.fill) {
                 if (this.model.get('editorMode')) { // just do it if in editor mode
                     $td.toggleClass('filled', !$td.is('.filled'));
+                    return;
                 } else if ($td.is('.marked:not(.locked)')) { // remove the mark
                     $td.removeClass('marked');
-                } 
+                    return;
+                }
                 var index = $('td', this.gameArea.$board).index($td[0])
                 if (this.model.canBeFilled(index)) { // fill only if legal move
                     $td.addClass('filled locked');
+                    this.model.fill(index);
                 } else {
+                    $td.addClass('marked locked error');
                     this.model.set({ lives: this.model.get('lives') - 1 })
                 }
-            } else if (this.inputEvent === inputState.mark) {
+            } else if (this.inputEvent === InputState.mark) {
                 if ($td.is('.filled')) {
                     $td.removeClass('filled');
                 } else {
                     $td.toggleClass('marked', !$td.is('.marked'));
+                }
+            }
+            if (this.inputEvent !== InputState.none) {
+                this.modifyKnownHints($td);   
+            }
+        },
+        modifyKnownSquares: function () {
+            var height = this.model.get('height');
+            for (var rowIndex = 0; rowIndex < height; rowIndex++) {
+                if (this.model.hasRowBeenFilled(rowIndex)) {
+                    $('td.row-' + rowIndex + ' span', this.gameArea.$sideHints).each(function () {
+                        $(this).addClass('marked locked');
+                    });
+                    $('td.row-' + rowIndex, this.gameArea.$board).each(function () {
+                        $(this).addClass('marked locked');
+                    });
+                }
+            }
+
+            var width = this.model.get('width');
+            for (var colIndex = 0; colIndex < width; colIndex++) {
+                console.log(this.model.hasColBeenFilled(colIndex));
+                if (this.model.hasColBeenFilled(colIndex)) {
+                    $('td.col-' + colIndex + ' span', this.gameArea.$topHints).each(function () {
+                        $(this).addClass('marked locked');
+                    });
+                    $('td.col-' + colIndex, this.gameArea.$board).each(function () {
+                        $(this).addClass('marked locked');
+                    });
                 }
             }
         },
