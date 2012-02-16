@@ -31,7 +31,7 @@
         hasColBeenFilled: function (col) {
             return this.getColBoard(col).indexOf(1) === -1;
         },
-        hasBeenFilled: function () {
+        isComplete: function () {
             var board = this.get('board');
             return board.indexOf(1) === -1;
         },
@@ -79,13 +79,15 @@
         render: function () {
             this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
             this.$el.html(ViewRenderHelper.createGameArea());
-
+            
             this.gameArea = {
+                $controls: this.$('.controls'),
                 $board: this.$('.board'),
                 $topHints: this.$('.top.hints'),
                 $sideHints: this.$('.side.hints')
             };
 
+            this.gameArea.$controls.html(ViewRenderHelper.createControlArea());
             this.gameArea.$board.html(ViewRenderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
             this.gameArea.$topHints.html(ViewRenderHelper.createTopHintsTable(this.model.get('width')));
             this.gameArea.$sideHints.html(ViewRenderHelper.createSideHintsTable(this.model.get('height')));
@@ -96,8 +98,9 @@
                 this.sizeView = new Picross.SizeView({ parent: this });
                 this.detailsView = new Picross.DetailsView({ parent: this });
             } else {
-                this.gameStatus = new Picross.GameStatusView({ parent: this });
+                this.gameStatus = new Picross.GameStatusView({ el: this.gameArea.$controls[0], parent: this });
                 this.modifyKnownSquares();
+                this.gameStart();
             }
         },
 
@@ -209,6 +212,9 @@
                 if (this.model.canBeFilled(index)) { // fill only if legal move
                     $td.addClass('filled locked');
                     this.model.fill(index);
+                    if (this.model.isComplete()) {
+                        this.gameOver(true);
+                    }
                 } else {
                     $td.addClass('marked locked error');
                     this.model.set({ lives: this.model.get('lives') - 1 })
@@ -239,7 +245,6 @@
 
             var width = this.model.get('width');
             for (var colIndex = 0; colIndex < width; colIndex++) {
-                console.log(this.model.hasColBeenFilled(colIndex));
                 if (this.model.hasColBeenFilled(colIndex)) {
                     $('td.col-' + colIndex + ' span', this.gameArea.$topHints).each(function () {
                         $(this).addClass('marked locked');
@@ -259,20 +264,73 @@
                 this.model.set({ hash: StateHelper.encode(state) });
             }
         },
-        gameOver: function () {
-            // end the game! called from GameStatusView
-            console.log('game over, man, game over');
+        gameStart: function () {
+            this.$el.append(
+                $('<div>').addClass('start-countdown')
+                    .data('time', 3)
+                    .text('3')
+            );
+            var self = this;
+            var timer = this.$('.start-countdown');
+            var startCountdown = function () {
+                timer.data('time', timer.data('time') - 1);
+                timer.text(timer.data('time'));
+                if (timer.data('time') > 0) {
+                    setTimeout(startCountdown, 1000);
+                } else {
+                    self.gameStatus.start();
+                    timer.remove();
+                }
+            };
+            setTimeout(startCountdown, 1000);
+        },
+        gameOver: function (win) {
+            if (win) {
+                console.log('congratulations! you\'ve won');
+            } else {
+                // end the game! called from GameStatusView
+                console.log('game over, man, game over');
+            }
+            this.gameStatus.stop();
         }
 
     });
 
     Picross.GameStatusView = Backbone.View.extend({
-        el: '#puzzle-status',
         initialize: function () {
             this.parent = this.options.parent;
             this.parent.model.on('change:lives', this.livesChange, this);
+            this.startTime = null;
+            this.render();
+        },
+        render: function () {
+            var $lives = this.$('.lives');
+            $.each(new Array(this.parent.model.get('lives')), function () {
+                $lives.append($('<span>').addClass('life'));
+            });
+            this.$time = this.$('.time');
+            this.$time.countdown({
+                since: new Date(),
+                format: 'hMS',
+                compact: true
+            });
+            this.$time.countdown('pause');
+            this.parent.$el.addClass('paused');
+        },
+        start: function () {
+            this.$time.countdown('resume');
+            this.parent.$el.removeClass('paused');
+        },
+        pause: function () {
+            this.$time.countdown('pause');
+            this.parent.$el.addClass('paused');
+        },
+        stop: function () {
+            this.$time.countdown('pause');
+            this.parent.$el.addClass('stopped');
         },
         livesChange: function () {
+            this.$('.lives .life:not(.off)').last().addClass('off');
             if (this.parent.model.get('lives') <= 0) {
                 this.parent.gameOver();
                 // stop clock
@@ -347,6 +405,23 @@
                     $('<td>').addClass('side hints')
                 ).append(
                     $('<td>').addClass('board')
+                )
+            );
+        },
+        createControlArea: function () {
+            return $('<div>').append(
+                $('<div>').addClass('time').append(
+                    $('<span>').addClass('timer')
+                ).append(
+                    $('<span>').addClass('max-time')
+                )
+            ).append(
+                $('<div>').addClass('lives')
+            ).append(
+                $('<div>').addClass('actions').append(
+                    $('<button>').addClass('btn')
+                        .attr('type', 'button')
+                        .html('pause')
                 )
             );
         },

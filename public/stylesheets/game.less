@@ -132,6 +132,26 @@
 		}
 	}
 
+    &.paused {
+        .board td span { visibility: hidden; }
+        .hints td span { visibility: hidden; }
+    }
+
+    position: relative;
+    .start-countdown {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        height: 100px;
+        width: 100px;
+        margin: -50px 0 0 -50px;
+        background: #fff;
+        border: solid 1px #666;
+        font-size: 56px;
+        line-height: 100px;
+        text-align: center;
+    }
+
     @size-5-5: 50px;
 	&.size-5-5 .side.hints td { height: @size-5-5; }
     &.size-5-5 .top.hints td  { width: @size-5-5; }
@@ -163,17 +183,17 @@
     &.size-25-25 .board span    { font-size: 30px; line-height: .35; }
 
 }
-#puzzle-details {
-    span.life {
-        background: url(images/life.png) no-repeat;
-        display: inline-block;
-        height: 50px;
-        width: 50px;
+span.life {
+    background: url(images/life.png) no-repeat;
+    display: inline-block;
+    height: 50px;
+    width: 50px;
 
-        &.off {
-            background-position: 0 -50px;
-        }
+    &.off {
+        background-position: 0 -50px;
     }
+}
+#puzzle-details {
     #time {
         text-align: center;
     }
