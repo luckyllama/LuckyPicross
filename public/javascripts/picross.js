@@ -182,20 +182,6 @@
                 $element.toggleClass('marked', !$element.is('.marked'));
             }
         },
-        modifyKnownHints : function ($td) {
-            var row = $td.data('row')
-              , col = $td.data('col');
-            if (typeof row !== 'undefined' && this.model.hasRowBeenFilled(row)) {
-                $('td.row-' + row + ' span', this.gameArea.$sideHints).each(function () {
-                    $(this).addClass('marked locked');
-                });
-            }
-            if (typeof col !== 'undefined' && this.model.hasColBeenFilled(col)) {
-                $('td.col-' + col + ' span', this.gameArea.$topHints).each(function () {
-                    $(this).addClass('marked locked');
-                })
-            }
-        },
         modifySquare: function ($td) {
             if ($td.is('.locked')) {
                 return;
@@ -227,7 +213,7 @@
                 }
             }
             if (this.inputEvent !== InputState.none) {
-                this.modifyKnownHints($td);   
+                this.modifyKnownSquares($td);   
             }
         },
         modifyKnownSquares: function () {
@@ -238,7 +224,10 @@
                         $(this).addClass('marked locked');
                     });
                     $('td.row-' + rowIndex, this.gameArea.$board).each(function () {
-                        $(this).addClass('marked locked');
+                        var $td = $(this);
+                        if ($td.is(':not(.filled)')) {
+                            $td.addClass('marked locked');
+                        }
                     });
                 }
             }
@@ -250,7 +239,10 @@
                         $(this).addClass('marked locked');
                     });
                     $('td.col-' + colIndex, this.gameArea.$board).each(function () {
-                        $(this).addClass('marked locked');
+                        var $td = $(this);
+                        if ($td.is(':not(.filled)')) {
+                            $(this).addClass('marked locked');
+                        }
                     });
                 }
             }
@@ -285,13 +277,16 @@
             setTimeout(startCountdown, 1000);
         },
         gameOver: function (win) {
+                // end the game! called from GameStatusView
             if (win) {
                 console.log('congratulations! you\'ve won');
+                this.$el.addClass('win');
             } else {
-                // end the game! called from GameStatusView
                 console.log('game over, man, game over');
+                this.$el.addClass('lose');
             }
             this.gameStatus.stop();
+            this.$el.addClass('game-over');
         }
 
     });
@@ -316,6 +311,16 @@
             });
             this.$time.countdown('pause');
             this.parent.$el.addClass('paused');
+        },
+        events: {
+            'click.picross button.pause' : function (ev) {
+                this.pause();
+                $(ev.currentTarget).toggleClass('pause resume').html('resume');
+            },
+            'click.picross button.resume' : function (ev) {
+                this.start();
+                $(ev.currentTarget).toggleClass('pause resume').html('pause');
+            }
         },
         start: function () {
             this.$time.countdown('resume');
@@ -419,7 +424,7 @@
                 $('<div>').addClass('lives')
             ).append(
                 $('<div>').addClass('actions').append(
-                    $('<button>').addClass('btn')
+                    $('<button>').addClass('btn pause')
                         .attr('type', 'button')
                         .html('pause')
                 )
