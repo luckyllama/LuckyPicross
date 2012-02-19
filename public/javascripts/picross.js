@@ -293,7 +293,9 @@
     });
 
     Picross.GameStatusView = Backbone.View.extend({
+        hasTimedOut: false,
         initialize: function () {
+            this.hasTimedOut = false;
             this.parent = this.options.parent;
             this.parent.model.on('change:lives', this.livesChange, this);
             this.startTime = null;
@@ -305,16 +307,20 @@
             $.each(new Array(this.parent.model.get('lives')), function () {
                 self.$lives.append($('<span>').addClass('life'));
             });
-            var maxTime = this.parent.model.get('maxTime');
-            if (maxTime) {
-                this.$('.max-time').text(maxTime + ' minute time limit');
-            }
-            this.$timer = this.$('.timer');
-            this.$timer.countdown({
+            var countdownOptions = {
                 since: new Date(),
                 format: 'hMS',
                 compact: true
-            });
+            };
+            var maxTime = this.parent.model.get('maxTime');
+            if (maxTime) {
+                this.$('.max-time').text(maxTime + ' minute time limit');
+                countdownOptions.onTick = function (time) {
+                    self.checkTimeout(time);   
+                }
+            }
+            this.$timer = this.$('.timer');
+            this.$timer.countdown(countdownOptions);
             this.$timer.countdown('pause');
             this.parent.$el.addClass('paused');
         },
@@ -328,7 +334,6 @@
                 $(ev.currentTarget).toggleClass('pause resume').html('pause');
             },
             'click.picross button.restart' : function (ev) {
-                //this.parent.model.initialize();
                 this.parent.initialize();
             }
         },
@@ -353,6 +358,20 @@
                 this.parent.gameOver();
                 this.stop();
             }
+        },
+        checkTimeout: function (time) {
+            if (this.hasTimedOut) { return; } // this event is called too often by countdown plugin
+            var elapsedMinutes = time[5];
+            var maxTime = this.parent.model.get('maxTime')
+            if (maxTime === elapsedMinutes) {
+                this.timeout();
+            } else if (maxTime - 1 === elapsedMinutes) {
+                this.$timer.addClass('danger');
+            }
+        },
+        timeout: function () {
+            this.hasTimedOut = true;
+            this.parent.gameOver();
         },
         gameOver: function (message) {
             this.stop();
