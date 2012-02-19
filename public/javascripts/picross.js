@@ -71,6 +71,7 @@
     }
 
     Picross.View = Backbone.View.extend({
+        interactable: false,
         initialize: function(){
             this.model = new Picross.Model(this.options.game);
             this.inputEvent = InputState.none;
@@ -87,7 +88,6 @@
                 $sideHints: this.$('.side.hints')
             };
 
-            this.gameArea.$controls.html(ViewRenderHelper.createControlArea());
             this.gameArea.$board.html(ViewRenderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
             this.gameArea.$topHints.html(ViewRenderHelper.createTopHintsTable(this.model.get('width')));
             this.gameArea.$sideHints.html(ViewRenderHelper.createSideHintsTable(this.model.get('height')));
@@ -97,7 +97,9 @@
             if (this.model.get('editorMode')) {
                 this.sizeView = new Picross.SizeView({ parent: this });
                 this.detailsView = new Picross.DetailsView({ parent: this });
+                this.interactable = true;
             } else {
+                this.gameArea.$controls.html(ViewRenderHelper.createControlArea());
                 this.gameStatus = new Picross.GameStatusView({ el: this.gameArea.$controls[0], parent: this });
                 this.modifyKnownSquares();
                 this.gameStart();
@@ -183,7 +185,7 @@
             }
         },
         modifySquare: function ($td) {
-            if ($td.is('.locked')) {
+            if ($td.is('.locked') || !this.interactable) {
                 return;
             }
             if (this.inputEvent === InputState.fill) {
@@ -277,15 +279,14 @@
             setTimeout(startCountdown, 1000);
         },
         gameOver: function (win) {
-                // end the game! called from GameStatusView
+            // end the game! called from GameStatusView
             if (win) {
-                console.log('congratulations! you\'ve won');
+                this.gameStatus.gameOver('Good Job!');
                 this.$el.addClass('win');
             } else {
-                console.log('game over, man, game over');
+                this.gameStatus.gameOver('You Lost!');
                 this.$el.addClass('lose');
             }
-            this.gameStatus.stop();
             this.$el.addClass('game-over');
         }
 
@@ -299,17 +300,22 @@
             this.render();
         },
         render: function () {
-            var $lives = this.$('.lives');
+            var self = this;
+            this.$lives = this.$('.lives').text('');
             $.each(new Array(this.parent.model.get('lives')), function () {
-                $lives.append($('<span>').addClass('life'));
+                self.$lives.append($('<span>').addClass('life'));
             });
-            this.$time = this.$('.time');
-            this.$time.countdown({
+            var maxTime = this.parent.model.get('maxTime');
+            if (maxTime) {
+                this.$('.max-time').text(maxTime + ' minute time limit');
+            }
+            this.$timer = this.$('.timer');
+            this.$timer.countdown({
                 since: new Date(),
                 format: 'hMS',
                 compact: true
             });
-            this.$time.countdown('pause');
+            this.$timer.countdown('pause');
             this.parent.$el.addClass('paused');
         },
         events: {
@@ -320,26 +326,41 @@
             'click.picross button.resume' : function (ev) {
                 this.start();
                 $(ev.currentTarget).toggleClass('pause resume').html('pause');
+            },
+            'click.picross button.restart' : function (ev) {
+                //this.parent.model.initialize();
+                this.parent.initialize();
             }
         },
         start: function () {
-            this.$time.countdown('resume');
+            this.$timer.countdown('resume');
             this.parent.$el.removeClass('paused');
+            this.parent.interactable = true;
         },
         pause: function () {
-            this.$time.countdown('pause');
+            this.$timer.countdown('pause');
             this.parent.$el.addClass('paused');
+            this.parent.interactable = false;
         },
         stop: function () {
-            this.$time.countdown('pause');
+            this.$timer.countdown('pause');
             this.parent.$el.addClass('stopped');
+            this.parent.interactable = false;
         },
         livesChange: function () {
             this.$('.lives .life:not(.off)').last().addClass('off');
             if (this.parent.model.get('lives') <= 0) {
                 this.parent.gameOver();
-                // stop clock
+                this.stop();
             }
+        },
+        gameOver: function (message) {
+            this.stop();
+            this.$lives.text(message);
+            this.$('button.pause, button.resume')
+                .removeClass('pause').removeClass('resume')
+                .addClass('restart')
+                .html('restart');
         }
     });
 
