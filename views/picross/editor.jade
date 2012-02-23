@@ -1,11 +1,11 @@
-extends ../layout
 
-block page-header
-    = title
+.page-header
+    h1= title
 
-block main-content
-    .picross-game
-block secondary-content
+.row
+    .span12
+        .picross-game
+.row
     .span6
         form.form-horizontal
             fieldset#puzzle-size
@@ -42,12 +42,3 @@ block secondary-content
                     .controls
                         button.btn.btn-primary.save(type='button') Save
                         button.btn.reset(type='button') Reset
-
-
-append scripts
-    script(src='/bootstrap/js/bootstrap-button.js')
-    script
-        $(function () {
-            var Picross = App.module('Picross');
-            var game = new Picross.View({ el: '.picross-game', game: { editorMode: true } });
-        });

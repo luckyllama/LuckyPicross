@@ -17,7 +17,9 @@ var App = {
             // Create a module and save it under this name
             return modules[name] = { };
         };
-    }()
+    }(),
+    Views: {},
+    Models: {}
 };
 
 // forceNumeric() plug-in implementation
