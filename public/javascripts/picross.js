@@ -49,6 +49,17 @@
                 result += board.substr(rowIndex * width + col, 1);
             }
             return result;
+        },
+        urlRoot: '/editor',
+        validate: function (attr) {
+            var errors = {};
+            if (attr.hash.length <= 0) {
+                errors.hash = 'There must be filled squares on the board.';
+            }
+            if (attr.name.length <= 0) {
+                errors.name = 'You must supply a game name.'
+            }
+            return errors;
         }
     });
 
@@ -402,6 +413,9 @@
         initialize: function () {
             this.parent = this.options.parent;
             this.$('#time').forceNumeric();
+            this.parent.model.on('error', function (model, errors) {
+                console.log(errors);
+            });
         },
         events: {
             'click span.life' : function (ev) {
@@ -417,6 +431,7 @@
                 if (!$.isNumeric(time)) { time = null };
                 var lives = this.$('span.life:not(.off)').length;
                 this.parent.model.set({ name: name, time: time, lives: lives });
+                this.parent.model.save();
             },
             'click button.reset' : function (ev) {
                 this.$('#time').val('\u221E');
