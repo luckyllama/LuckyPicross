@@ -7,7 +7,13 @@ exports.boot = (app, db) ->
   bootRoutes app, db
 
 bootApplication = (app) ->
+
   app.configure ->
+    app.use (req, res, next) ->
+      if req.xhr
+        res.local('layout', false );
+      next()
+
     app.use express.bodyParser()
     app.use express.methodOverride()
     app.use express.cookieParser()

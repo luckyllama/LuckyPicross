@@ -1,10 +1,20 @@
 
 App.Router = Backbone.Router.extend({
     routes: {
+        '': 'index',
         'editor': 'editor'
     },
+    index: function () {
+        this.localContent('/');
+    },
     editor: function() {
-        alert('things');
+        this.loadContent('/editor');
+    },
+    loadContent: function (url) {
+        $.ajax(url)
+            .success(function (data) {
+                $('.content').html(data);
+            });
     }
 });
 
