@@ -1,28 +1,53 @@
 
+App.pageHasLoaded = false;
+
 App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
-        'editor': 'editor'
+        'editor': 'editor',
+        'game/:id': 'game'
     },
     index: function () {
-        this.localContent('/');
+        this.loadContent('/');
     },
     editor: function() {
-        this.loadContent('/editor');
+        this.loadContent('/editor', null, function () {
+            var Picross = App.module('Picross');
+            var game = new Picross.View({ el: '.picross-game', game: { editorMode: true } }); 
+        });
     },
-    loadContent: function (url) {
-        $.ajax(url)
-            .success(function (data) {
-                $('.content').html(data);
-            });
+    game: function (id) {
+        this.loadContent('/game', { id: id }, function () {
+            var Picross = App.module('Picross');
+            var game = new Picross.View({ el: '.picross-game', game: { hash: 'dde5595655dde659565595655', maxTime: 3 } });
+        });
+    },
+    loadContent: function (url, data, callback) {
+        if (App.pageHasLoaded) {
+            App.LoadingContent.on();
+            $.ajax(url, { data: data })
+                .success(function (data) {
+                    $('.content').html(data);
+                    App.LoadingContent.off();
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                });
+        } else {
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
     }
 });
 
 var router = new App.Router();
-$(document).on('click', 'a', function (ev) {
+Backbone.history.start({ pushState: true });
+
+$(document).on('click', 'a.ajax', function (ev) {
     var href = $(this).attr('href');
     router.navigate(href, true);
     ev.preventDefault();
 });
 
-Backbone.history.start({ pushState: true });
+App.pageHasLoaded = true;

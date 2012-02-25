@@ -19,7 +19,29 @@ var App = {
         };
     }(),
     Views: {},
-    Models: {}
+    Models: {},
+    LoadingContent: {
+        _$content: $('body .content'),
+        on: function () {
+            if ($('.loading-container', this._$content).exists() == false) {
+                this._$content.addClass('loading');
+                this._$content.prepend(
+                    $('<div>').addClass('loading-container')
+                        .css({ 
+                            height: this._$content.outerHeight(), 
+                            width: this._$content.outerWidth(),
+                            marginTop: '-' + this._$content.css('padding-top'),
+                            marginLeft: '-' + this._$content.css('padding-left')
+                        })
+                        .append($('<span>').addClass('loading-indicator'))
+                );
+            }
+        },
+        off: function () {
+            this._$content.removeClass('loading');
+            this._$content.remove('.loading-container');
+        }
+    }
 };
 
 // forceNumeric() plug-in implementation
@@ -50,3 +72,5 @@ var App = {
          });
      });
  }
+
+ jQuery.fn.exists = function(){return this.length>0;}

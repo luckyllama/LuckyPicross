@@ -1,9 +1,9 @@
-extends ../layout
 
-block page-header
-    = title
+.page-header
+    h1= title
 
-block main-content
-    p No need to sign up, just sign in with an account you already have!
-    .auth-options
-        a(href='/auth/google', class='btn google-large'): span Sign in with Google
+.row
+    .span12
+        p No need to sign up, just sign in with an account you already have!
+        .auth-options
+            a(href='/auth/google', class='btn google-large'): span Sign in with Google

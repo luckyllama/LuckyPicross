@@ -1,41 +1,42 @@
-extends ../layout
 
-block page-header
-    = title
 
-block main-content
-    div#response
-    table.table
-        thead
-            tr
-                th.span2 Provider
-                th.span2 Display Name
-                th.span2 Name
-                th.span3 Emails
-                th.span2 Roles
-                th.span1 Actions
-        if users.length > 0
-            tbody
-                - each user in users
-                  tr
-                    td.provider= user.provider
-                    td.display-name= user.displayName
-                    td.name= user.name.givenName + ' ' + user.name.familyName
-                    td.email= user.emails[0].value
-                        if user.emails.length > 1
-                            div and #{user.emails.length - 1} more
-                    td.role
-                        select.span2(data-url='/admin/user/#{user._id}')
-                            - each role in roles
-                                if user.role == role
-                                    option(selected)= role
-                                else
-                                    option= role
-                    td.actions
-                        a.delete(href='/admin/user/#{user._id}') Delete
-        else
-            tbody
-                tr: td(colspan=6) There are no current users.
+.page-header
+    h1= title
+
+.row
+    .span12
+        div#response
+        table.table
+            thead
+                tr
+                    th.span2 Provider
+                    th.span2 Display Name
+                    th.span2 Name
+                    th.span3 Emails
+                    th.span2 Roles
+                    th.span1 Actions
+            if users.length > 0
+                tbody
+                    - each user in users
+                      tr
+                        td.provider= user.provider
+                        td.display-name= user.displayName
+                        td.name= user.name.givenName + ' ' + user.name.familyName
+                        td.email= user.emails[0].value
+                            if user.emails.length > 1
+                                div and #{user.emails.length - 1} more
+                        td.role
+                            select.span2(data-url='/admin/user/#{user._id}')
+                                - each role in roles
+                                    if user.role == role
+                                        option(selected)= role
+                                    else
+                                        option= role
+                        td.actions
+                            a.delete(href='/admin/user/#{user._id}') Delete
+            else
+                tbody
+                    tr: td(colspan=6) There are no current users.
 
 
 append scripts

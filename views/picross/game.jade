@@ -1,18 +1,7 @@
-extends ../layout
 
-block page-header
-    = title
+.page-header
+    h1= title
 
-block main-content
-    .picross-game
-block secondary-content
-
-
-append scripts
-    script(src='/bootstrap/js/bootstrap-button.js')
-    script(src='/javascripts/lib/jquery.countdown.min.js')
-    script
-        $(function () {
-            var Picross = App.module('Picross');
-            var game = new Picross.View({ el: '.picross-game', game: { hash: 'dde5595655dde659565595655', maxTime: 3 } });
-        });
+.row
+    .span12
+        .picross-game
