@@ -1,112 +1,55 @@
 ﻿
 "use strict";
 
-Picross.View = Backbone.View.extend({
+App.Views.PicrossGame = App.Views.PicrossBase.extend({
     interactable: false,
-    initialize: function(){
-        this.model = new Picross.Model(this.options.game);
-        this.inputEvent = InputState.none;
-        this.render();
+    gameStatus: {},
+
+    initialize: function(options){
+        // call parent initialize
+        this.constructor.__super__.initialize.apply(this, [options]);
     },
+
     render: function () {
-        this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
-        this.$el.html(ViewRenderHelper.createGameArea());
-        
-        this.gameArea = {
-            $controls: this.$('.controls'),
-            $board: this.$('.board'),
-            $topHints: this.$('.top.hints'),
-            $sideHints: this.$('.side.hints')
-        };
+        // call parent render
+        this.constructor.__super__.render.apply(this);
 
-        this.gameArea.$board.html(ViewRenderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
-        this.gameArea.$topHints.html(ViewRenderHelper.createTopHintsTable(this.model.get('width')));
-        this.gameArea.$sideHints.html(ViewRenderHelper.createSideHintsTable(this.model.get('height')));
-
-        this.updateHints();
-
-        if (this.model.get('editorMode')) {
-            this.sizeView = new Picross.SizeView({ parent: this });
-            this.detailsView = new Picross.DetailsView({ parent: this });
-            this.interactable = true;
-        } else {
-            this.gameArea.$controls.html(ViewRenderHelper.createControlArea());
-            this.gameStatus = new Picross.GameStatusView({ el: this.gameArea.$controls[0], parent: this });
-            this.modifyKnownSquares();
-            this.gameStart();
-        }
+        this.gameArea.$controls.html(this.renderHelper.createControlArea());
+        this.gameStatus = new App.Views.GameStatus({ el: this.gameArea.$controls[0], parent: this, model: this.model });
+        this.modifyKnownSquares();
+        this.gameStart();
     },
 
-    events: {
-        'hover.picross td' : function (ev) {
-            var $td = $(ev.currentTarget);
-            var toggleHover = function (view, $td, align) {
-                var alignIndex = $td.data(align);
-                if (alignIndex !== 'undefined') {
-                    view.$('.' + align + '-' + alignIndex).toggleClass('hover');
-                }
-            };
-            toggleHover(this, $td, 'col');
-            toggleHover(this, $td, 'row');
-        },
-        'mousedown.picross .board td' : function (ev) {
-            this.inputEvent = InputState.get(ev);
-            this.modifySquare($(ev.currentTarget));
-            return false;
-        },
-        'mouseup.picross' : function (ev) {
-            this.inputEvent = InputState.clear();
-            if (this.model.get('editorMode')) {
-                this.updateHints();
-                this.updateBoardState();
-            }
-        },
-        'mouseenter.picross .board td' : function (ev) {
-            this.modifySquare($(ev.currentTarget));
-        },
+    renderHelper: _.extend({}, App.Views.PicrossBase.prototype.renderHelper, {
+        createControlArea: function () {
+            return $('<div>').append(
+                $('<div>').addClass('time').append(
+                    $('<span>').addClass('timer')
+                ).append(
+                    $('<span>').addClass('max-time')
+                )
+            ).append(
+                $('<div>').addClass('lives')
+            ).append(
+                $('<div>').addClass('actions').append(
+                    $('<button>').addClass('btn pause')
+                        .attr('type', 'button')
+                        .html('pause')
+                )
+            );
+        }
+    }),
+
+    events: _.extend( {}, App.Views.PicrossBase.prototype.events, {
         'mousedown.picross .hints td span' : function (ev) {
-            if (!this.model.get('editorMode')) {
-                this.inputEvent = InputState.get(ev);
-                this.modifyHint($(ev.currentTarget));
-            }
+            this.inputEvent = InputState.get(ev);
+            this.modifyHint($(ev.currentTarget));
         },
         'mouseenter.picross .hints td span' : function (ev) {
-            if (!this.model.get('editorMode')) {
-                this.modifyHint($(ev.currentTarget));
-            }
-        },
-        'mouseleave.picross' : function (ev) {
-            this.inputEvent = InputState.clear();
-        },
-        'contextmenu.picross' : function (ev) { ev.preventDefault(); }
-    },
-    updateHints: function () {
-        var self = this;
-        var calculateHints = function ($hintsArea, align) {
-            $('td', $hintsArea).each(function () {
-                var $hintArea = $(this).html('');
-                var alignIndex = $hintArea.data(align);
-                var count = 0;
-                $('td.' + align + '-' + alignIndex, self.gameArea.$board).each(function () {
-                    var square = $(this);
-                    var index = $('td', self.gameArea.$board).index(square[0]);
-                    if(square.is('.filled') || self.model.canBeFilled(index)) {
-                        count++;
-                    } else {
-                        if (count) {
-                            $('<span>').text(count).appendTo($hintArea);
-                            count = 0;
-                        }
-                    }
-                });
-                if (!$hintArea.find('span').length || count > 0) {
-                    $('<span>').text(count).appendTo($hintArea);
-                }
-            });
-        };
-        calculateHints(this.gameArea.$topHints, 'col');
-        calculateHints(this.gameArea.$sideHints, 'row');
-    },
+            this.modifyHint($(ev.currentTarget));
+        }
+    }),
+
     modifyHint: function ($element) {
         if ($element.is('.locked')) {
             return;
@@ -115,40 +58,39 @@ Picross.View = Backbone.View.extend({
             $element.toggleClass('marked', !$element.is('.marked'));
         }
     },
-    modifySquare: function ($td) {
-        if ($td.is('.locked') || !this.interactable) {
+
+    // override base to add custom logic
+    modifySquare: function ($square) {
+        if (!this.interactable){
             return;
         }
-        if (this.inputEvent === InputState.fill) {
-            if (this.model.get('editorMode')) { // just do it if in editor mode
-                $td.toggleClass('filled', !$td.is('.filled'));
-                return;
-            } else if ($td.is('.marked:not(.locked)')) { // remove the mark
-                $td.removeClass('marked');
-                return;
-            }
-            var index = $('td', this.gameArea.$board).index($td[0])
-            if (this.model.canBeFilled(index)) { // fill only if legal move
-                $td.addClass('filled locked');
-                this.model.fill(index);
-                if (this.model.isComplete()) {
-                    this.gameOver(true);
-                }
-            } else {
-                $td.addClass('marked locked error');
-                this.model.set({ lives: this.model.get('lives') - 1 })
-            }
-        } else if (this.inputEvent === InputState.mark) {
-            if ($td.is('.filled')) {
-                $td.removeClass('filled');
-            } else {
-                $td.toggleClass('marked', !$td.is('.marked'));
-            }
-        }
+        this.constructor.__super__.modifySquare.apply(this, [$square]);
+
         if (this.inputEvent !== InputState.none) {
-            this.modifyKnownSquares($td);   
+            this.modifyKnownSquares($square);   
         }
     },
+
+    // implement fill square logic 
+    fillSquare: function ($square) {
+        if ($square.is('.marked:not(.locked)')) { // remove the mark
+            $square.removeClass('marked');
+            return;
+        }
+        var index = $('td', this.gameArea.$board).index($square[0])
+        if (this.model.canBeFilled(index)) { // fill only if legal move
+            $square.addClass('filled locked');
+            this.model.fill(index);
+            if (this.model.isComplete()) {
+                this.gameOver(true);
+            }
+        } else {
+            $square.addClass('marked locked error');
+            this.model.set({ lives: this.model.get('lives') - 1 })
+        }
+    },
+
+    // lock row/columns that have been completed
     modifyKnownSquares: function () {
         var height = this.model.get('height');
         for (var rowIndex = 0; rowIndex < height; rowIndex++) {
@@ -180,15 +122,8 @@ Picross.View = Backbone.View.extend({
             }
         }
     },
-    updateBoardState: function () {
-        if (this.model.get('editorMode')) {
-            var state = '';
-            $('td', this.gameArea.$board).each(function (index, el) {
-                state += $(el).is('.filled') ? '1' : '0';
-            });
-            this.model.set({ hash: StateHelper.encode(state) });
-        }
-    },
+
+    // start up the game
     gameStart: function () {
         this.$el.append(
             $('<div>').addClass('start-countdown')
@@ -209,9 +144,11 @@ Picross.View = Backbone.View.extend({
         };
         setTimeout(startCountdown, 1000);
     },
-    gameOver: function (win) {
+
+    // the game is over, the user has (bool) won
+    gameOver: function (won) {
         // end the game! called from GameStatusView
-        if (win) {
+        if (won) {
             this.gameStatus.gameOver('Good Job!');
             this.$el.addClass('win');
         } else {
@@ -223,19 +160,19 @@ Picross.View = Backbone.View.extend({
 
 });
 
-Picross.GameStatusView = Backbone.View.extend({
+App.Views.GameStatus = Backbone.View.extend({
     hasTimedOut: false,
     initialize: function () {
         this.hasTimedOut = false;
         this.parent = this.options.parent;
-        this.parent.model.on('change:lives', this.livesChange, this);
+        this.model.on('change:lives', this.livesChange, this);
         this.startTime = null;
         this.render();
     },
     render: function () {
         var self = this;
         this.$lives = this.$('.lives').text('');
-        $.each(new Array(this.parent.model.get('lives')), function () {
+        $.each(new Array(this.model.get('lives')), function () {
             self.$lives.append($('<span>').addClass('life'));
         });
         var countdownOptions = {
@@ -266,6 +203,7 @@ Picross.GameStatusView = Backbone.View.extend({
         },
         'click.picross button.restart' : function (ev) {
             this.parent.initialize();
+            this.parent.render();
         }
     },
     start: function () {
@@ -284,8 +222,9 @@ Picross.GameStatusView = Backbone.View.extend({
         this.parent.interactable = false;
     },
     livesChange: function () {
+        console.log('livesChange');
         this.$('.lives .life:not(.off)').last().addClass('off');
-        if (this.parent.model.get('lives') <= 0) {
+        if (this.model.get('lives') <= 0) {
             this.parent.gameOver();
             this.stop();
         }
@@ -293,7 +232,7 @@ Picross.GameStatusView = Backbone.View.extend({
     checkTimeout: function (time) {
         if (this.hasTimedOut) { return; } // this event is called too often by countdown plugin
         var elapsedMinutes = time[5];
-        var maxTime = this.parent.model.get('maxTime')
+        var maxTime = this.model.get('maxTime')
         if (maxTime === elapsedMinutes) {
             this.timeout();
         } else if (maxTime - 1 === elapsedMinutes) {

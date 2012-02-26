@@ -8,5 +8,5 @@ module.exports = (app, db) ->
 
   app.post "/editor", (req, res) ->
 
-  app.get "/game", (req, res) ->
+  app.get "/game/:id", (req, res) ->
     res.render "picross/game", { title: "Picross" }

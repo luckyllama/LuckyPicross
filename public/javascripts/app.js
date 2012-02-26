@@ -16,12 +16,14 @@ App.Router = Backbone.Router.extend({
             var editor = new App.Views.PicrossEditor({ el: '.picross-game', model: model });
             editor.sizeView = new App.Views.PuzzleSize({ parent: editor, model: model });
             editor.detailsView = new App.Views.PuzzleDetails({ parent: editor, model: model });
+            editor.render();
         });
     },
     game: function (id) {
         this.loadContent('/game', { id: id }, function () {
-            var Picross = App.module('Picross');
-            var game = new Picross.View({ el: '.picross-game', game: { hash: 'dde5595655dde659565595655', maxTime: 3 } });
+            var model = new App.Models.Game({ hash: 'dde5595655dde659565595655', maxTime: 3 });
+            var game = new App.Views.PicrossGame({ el: '.picross-game', model: model });
+            game.render();
         });
     },
     loadContent: function (url, data, callback) {

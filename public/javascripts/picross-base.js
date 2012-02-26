@@ -10,19 +10,16 @@ App.Models.Game = Backbone.Model.extend({
         maxTime: null,
         height: 10,
         width: 10,
-        editorMode: false
     },
     initialize: function () {
-        if (!this.editorMode) {
-            this.set({ board: StateHelper.decode(this.get('hash'), this.get('height') * this.get('width')) });
-        }
+        this.set({ board: this.decodeHash(this.get('hash'), this.get('height') * this.get('width')) }, { silent: true });
     },
     canBeFilled: function (index) {
         return this.get('board').charAt(index) === '1';
     },
     fill: function (index) {
         var board = this.get('board');
-        this.set({ board: board.substr(0,index) + '2' + board.substr(index+1)})
+        this.set({ board: board.substr(0,index) + '2' + board.substr(index+1)}, { silent: true })
     },
     hasRowBeenFilled: function (row) {
         return this.getRowBoard(row).indexOf(1) === -1;
@@ -50,14 +47,14 @@ App.Models.Game = Backbone.Model.extend({
         return result;
     },
     urlRoot: '/editor',
-    validate: function (attr) {
+    isValid: function () {
     	var hasErrors = false;
         var errors = {};
-        if (attr.hash.length <= 0 && attr.hash.indexOf(1) === -1) {
+        if (this.get('hash').length <= 0 && this.get('hash').indexOf(1) === -1) {
         	hasErrors = true;
             errors.hash = 'There must be filled squares on the board.';
         }
-        if (attr.name.length <= 0) {
+        if (this.get('name').length <= 0) {
         	hasErrors = true;
             errors.name = 'You must supply a game name.'
         }
@@ -65,11 +62,9 @@ App.Models.Game = Backbone.Model.extend({
 	        return errors;
 	    }
 	    return;
-    }
-});
+    },
 
-var StateHelper = {
-    encode: function (input) {
+    encodeHash: function (input) {
         var result = '';
         for (var index = 0, length = input.length; index < length; index += 4) {
             var sub = input.substr(index, 4);
@@ -79,7 +74,7 @@ var StateHelper = {
         }
         return result;
     },
-    decode: function (input, maxLength) {
+    decodeHash: function (input, maxLength) {
         var result = '';
         for (var index = 0, length = input.length; index < length; index++) {
             var sub = input.substr(index, 1);
@@ -89,7 +84,7 @@ var StateHelper = {
         }
         return result.substr(0, maxLength);
     }
-};
+});
 
 var InputState = {
     none : 'none',
@@ -112,10 +107,7 @@ var InputState = {
 App.Views.PicrossBase = Backbone.View.extend({
 	inputEvent: InputState.none,
 
-    initialize: function (){
-        //this.model = new Picross.Model(this.options.game);
-        //this.render();
-    },
+    initialize: function () {},
 
     render: function () {
         this.$el.attr('class', 'picross-game size-' + this.model.get('width') + '-' + this.model.get('height'));
@@ -127,7 +119,7 @@ App.Views.PicrossBase = Backbone.View.extend({
             $topHints: this.$('.top.hints'),
             $sideHints: this.$('.side.hints')
         };
-
+        console.log(this.model);
         this.gameArea.$board.html(this.renderHelper.createBoardTable(this.model.get('width'), this.model.get('height')));
         this.gameArea.$topHints.html(this.renderHelper.createTopHintsTable(this.model.get('width')));
         this.gameArea.$sideHints.html(this.renderHelper.createSideHintsTable(this.model.get('height')));
@@ -148,23 +140,6 @@ App.Views.PicrossBase = Backbone.View.extend({
 	                $('<td>').addClass('side hints')
 	            ).append(
 	                $('<td>').addClass('board')
-	            )
-	        );
-	    },
-	    createControlArea: function () {
-	        return $('<div>').append(
-	            $('<div>').addClass('time').append(
-	                $('<span>').addClass('timer')
-	            ).append(
-	                $('<span>').addClass('max-time')
-	            )
-	        ).append(
-	            $('<div>').addClass('lives')
-	        ).append(
-	            $('<div>').addClass('actions').append(
-	                $('<button>').addClass('btn pause')
-	                    .attr('type', 'button')
-	                    .html('pause')
 	            )
 	        );
 	    },
@@ -271,27 +246,27 @@ App.Views.PicrossBase = Backbone.View.extend({
     },
 
     // modify a given jquery board square based on current input state
-    modifySquare: function ($td) {
-        if ($td.is('.locked')) {
+    modifySquare: function ($square) {
+        if ($square.is('.locked')) {
             return;
         }
 
         if (this.inputEvent === InputState.fill) {
-            this.fillSquare($td);
+            this.fillSquare($square);
         } else if (this.inputEvent === InputState.mark) {
-        	this.markSquare($td);
+        	this.markSquare($square);
         }
     },
 
-    fillSquare: function ($td) {
+    fillSquare: function ($square) {
     	// should be overriden in extending class
     },
 
-    markSquare: function ($td) {
-        if ($td.is('.filled')) {
-            $td.removeClass('filled');
+    markSquare: function ($square) {
+        if ($square.is('.filled')) {
+            $square.removeClass('filled');
         } else {
-            $td.toggleClass('marked', !$td.is('.marked'));
+            $square.toggleClass('marked', !$square.is('.marked'));
         }
     }
 });

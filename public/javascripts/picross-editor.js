@@ -4,10 +4,10 @@
 App.Views.PicrossEditor = App.Views.PicrossBase.extend({
     sizeView: {},
     detailsView: {},
+
     initialize: function (options){
         // call parent initialize
         this.constructor.__super__.initialize.apply(this, [options]);
-        this.render();
     },
 
     render: function () {
@@ -25,8 +25,8 @@ App.Views.PicrossEditor = App.Views.PicrossBase.extend({
     }),
 
     // implement fill square logic 
-    fillSquare: function ($td) {
-        $td.toggleClass('filled', !$td.is('.filled'));
+    fillSquare: function ($square) {
+        $square.toggleClass('filled', !$square.is('.filled'));
         return;
     },
 
@@ -36,7 +36,7 @@ App.Views.PicrossEditor = App.Views.PicrossBase.extend({
         $('td', this.gameArea.$board).each(function (index, el) {
             state += $(el).is('.filled') ? '1' : '0';
         });
-        this.model.set({ hash: StateHelper.encode(state) }, { silent: true });
+        this.model.set({ hash: this.model.encodeHash(state) }, { silent: true });
     }
 });
 
