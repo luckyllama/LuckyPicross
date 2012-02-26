@@ -12,8 +12,10 @@ App.Router = Backbone.Router.extend({
     },
     editor: function() {
         this.loadContent('/editor', null, function () {
-            var Picross = App.module('Picross');
-            var game = new Picross.View({ el: '.picross-game', game: { editorMode: true } }); 
+            var model = new App.Models.Game();
+            var editor = new App.Views.PicrossEditor({ el: '.picross-game', model: model });
+            editor.sizeView = new App.Views.PuzzleSize({ parent: editor, model: model });
+            editor.detailsView = new App.Views.PuzzleDetails({ parent: editor, model: model });
         });
     },
     game: function (id) {
