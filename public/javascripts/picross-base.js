@@ -47,21 +47,15 @@ App.Models.Game = Backbone.Model.extend({
         return result;
     },
     urlRoot: '/editor',
-    isValid: function () {
-    	var hasErrors = false;
+    customValidate: function () {
         var errors = {};
         if (this.get('hash').length <= 0 && this.get('hash').indexOf(1) === -1) {
-        	hasErrors = true;
             errors.hash = 'There must be filled squares on the board.';
         }
         if (this.get('name').length <= 0) {
-        	hasErrors = true;
-            errors.name = 'You must supply a game name.'
+            errors.name = 'You must supply a game name.';
         }
-        if (hasErrors) {
-	        return errors;
-	    }
-	    return;
+        return errors;
     },
 
     encodeHash: function (input) {

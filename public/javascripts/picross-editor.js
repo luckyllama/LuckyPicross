@@ -78,8 +78,25 @@ App.Views.PuzzleDetails = Backbone.View.extend({
             if (!$.isNumeric(time)) { time = null };
             var lives = this.$('span.life:not(.off)').length;
             this.model.set({ name: name, time: time, lives: lives });
-            if (this.model.isValid()) {
+
+            this.$('.control-group').removeClass('error');
+            this.$('.help-block').remove();
+            var validationErrors = this.model.customValidate();
+            if (_.size(validationErrors) === 0) {
                 this.model.save();
+            } else {
+                _.each(validationErrors, function (value, key) {
+                    var $error = $('<p>').addClass('help-block').text(value);
+                    var input = this.$('input#' + key);
+                    if (input.exists()) {
+                        input.closest('.control-group').addClass('error');
+                        input.closest('.controls').append($error);
+                    } else {
+                        var $formErrors = this.$('#submit-errors');
+                        $formErrors.closest('.control-group').addClass('error');
+                        $formErrors.append($error);
+                    }
+                }, this);
             }
         },
         'click button.reset' : function (ev) {

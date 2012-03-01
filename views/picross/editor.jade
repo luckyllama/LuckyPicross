@@ -21,10 +21,11 @@
         form.form-horizontal
             fieldset#puzzle-details
                 legend Save Puzzle
+                .control-group: div#submit-errors.controls
                 .control-group
                     label.control-label Name
                     .controls
-                        input.input-xlarge(type='text', id='name')
+                        input#name.input-xlarge(type='text', required)
                 .control-group
                     label.control-label Lives
                     .controls
@@ -36,7 +37,7 @@
                 .control-group
                     label.control-label Max Time
                     .controls
-                        input.input-xlarge.span1(type='text', id='time', value='\u221E')
+                        input#time.input-xlarge.span1(type='text', value='\u221E')
                         span.help-inline in minutes
                 .control-group
                     .controls
