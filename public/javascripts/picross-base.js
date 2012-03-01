@@ -55,6 +55,12 @@ App.Models.Game = Backbone.Model.extend({
         if (this.get('name').length <= 0) {
             errors.name = 'You must supply a game name.';
         }
+        if (this.get('lives') <= 0 || this.get('lives') > 5) {
+        	errors.lives = 'Total lives must be between 0 and 5.'
+        }
+        if (this.get('maxTime') !== null && !_.isNumber(this.get('maxTime'))) {
+        	errors.time = 'Max time must be a number in minutes.'
+        }
         return errors;
     },
 
