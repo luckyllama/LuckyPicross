@@ -16,7 +16,7 @@
                 tbody
                     - each game in games
                       tr
-                        td.thumbnail
+                        td.preview(data-hash='#{game.hash}', data-width='#{game.width}', data-height='#{game.height}')
                         td.name= game.name
                         td.size  #{game.width}x#{game.height}
                         td.lives= game.lives

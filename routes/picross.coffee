@@ -23,6 +23,3 @@ module.exports = (app, db) ->
 
     app.get "/game/:id", (req, res) ->
         res.render "picross/game", { title: "Picross" }
-
-    app.get "/games", (req, res) ->
-        

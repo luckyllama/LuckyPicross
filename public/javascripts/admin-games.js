@@ -23,13 +23,34 @@ $(function () {
         return false;
     });
 
-    $('td.role select').change(function () {
-        var select = $(this);
-        console.log('changed');
-        $.ajax(select.data('url'), { type: 'POST', data: { role: select.val() } })
-            .done(function (data) {
-                updateStatus(data, 'User role has been updated.', 'Could not update user role.')
-            });
+    $('td.preview').each(function () {
+        var $preview = $(this);
+        var game = new App.Models.Game({ hash: $preview.data('hash'), height: $preview.data('height'), width: $preview.data('width') });
+
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("version", "1.2");
+        svg.setAttribute("baseProfile", "tiny");
+        svg.setAttribute("style", "width: 60px; height: 60px;")
+
+        var width = game.get('width');
+        var height = game.get('height');
+        var squareSize = 60 / height;
+        
+        _.each(game.get('board').split(''), function (value, index) {
+            if (value === "1") {
+                var square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+                square.style.fill = "black";
+                square.width.baseVal.value = squareSize;
+                square.height.baseVal.value = squareSize;
+                square.x.baseVal.value = (index % width) * squareSize;
+                square.y.baseVal.value = parseInt(index / height) * squareSize;
+
+                svg.appendChild(square);
+            }
+        });
+
+        $preview.append(svg);
     });
 
 });
