@@ -17,7 +17,8 @@ html
                     li: a.ajax(href='/editor') editor
                     if user && user.role === 'admin'
                         li: a(href='/admin/users') users
-                include auth/inlineLogin
+                        li: a(href='/admin/games') games
+                include admin/inlineLogin
 
     .container
         .content
@@ -38,4 +39,5 @@ html
     script(src='/javascripts/picross-editor.js')
     script(src='/javascripts/picross-game.js')
     script(src='/javascripts/app.js')
-    block scripts
+    - each script in scripts
+      script(src='#{script}')

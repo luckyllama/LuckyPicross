@@ -1,5 +1,4 @@
 
-
 .page-header
     h1= title
 
@@ -38,8 +37,6 @@
                 tbody
                     tr: td(colspan=6) There are no current users.
 
-
-append scripts
-    script(src='/javascripts/adminUsers.js')
-    script(src='/bootstrap/js/bootstrap-alert.js')
-    script(src='/bootstrap/js/bootstrap-transition.js')
+- scripts.push('/javascripts/admin-users.js')
+- scripts.push('/bootstrap/js/bootstrap-alert.js')
+- scripts.push('/bootstrap/js/bootstrap-transition.js')

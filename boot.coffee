@@ -39,9 +39,16 @@ bootApplication = (app) ->
   app.dynamicHelpers
     user: (req, res) ->
       req.user
-
     currentUrl: (req, res) ->
       req.url
+    scripts: (req, res) ->
+      return []
+
+  app.helpers
+    renderScriptTags: (scripts) -> 
+      return scripts.map((script) ->
+        return "<script src='#{script}'></script>"
+      ).join('\n ');
 
 bootRoutes = (app, db) ->
   dir = __dirname + "/routes"

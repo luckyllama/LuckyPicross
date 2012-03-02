@@ -1,0 +1,32 @@
+.page-header
+    h1= title
+
+.row
+    .span12
+        div#response
+        table.table
+            thead
+                tr
+                    th.span3 
+                    th.span3 name
+                    th.span1 size
+                    th.span1 lives
+                    th.span1 maxTime
+            if games.length > 0
+                tbody
+                    - each game in games
+                      tr
+                        td.thumbnail
+                        td.name= game.name
+                        td.size  #{game.width}x#{game.height}
+                        td.lives= game.lives
+                        td.maxTime= game.maxTime
+                        td.actions
+                            a.delete(href='/admin/game/#{game._id}') Delete
+            else
+                tbody
+                    tr: td(colspan=6) There are no games.
+
+- scripts.push('/javascripts/admin-games.js')
+- scripts.push('/bootstrap/js/bootstrap-alert.js')
+- scripts.push('/bootstrap/js/bootstrap-transition.js')

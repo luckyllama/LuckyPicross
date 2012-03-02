@@ -38,7 +38,7 @@ module.exports = (app, db) ->
 
   app.get "/login", (req, res) ->
     req.session.returnUrl = req.param("return") or "/"
-    res.render "auth/login",
+    res.render "admin/login",
       title: "Login"
 
   app.get "/logout", (req, res) ->
@@ -58,32 +58,3 @@ module.exports = (app, db) ->
         returnUrl
       failureRedirect: "/login"
     ) req, res, next
-
-  app.get "/admin/users", auth.isLoggedIn, auth.isAdmin, (req, res) ->
-    users.find {}, (err, data) ->
-      res.render "auth/users",
-        title: "Administer Users"
-        users: data
-        roles: roles
-
-  deleteUser = (req, res) ->
-    users.findById req.params.id, (err, data) ->
-      throw new Error("User #{ req.params.id } could not be found.") if err
-      
-      data.remove() if data
-
-      if req.method is "GET"
-        res.redirect "/admin/users"
-      else
-        res.send success: true
-
-  app.get "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
-  
-  app.del "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
-
-  app.post "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, (req, res) ->
-    role = req.body.role or roles.member
-    users.update { _id: req.params.id }, { role: role }, { multi: false }
-    , (err) ->
-      throw new Error("User #{ req.params.id } could not be found.") if err
-      res.send success: true
