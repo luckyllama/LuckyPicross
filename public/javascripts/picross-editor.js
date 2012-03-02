@@ -77,7 +77,7 @@ App.Views.PuzzleDetails = Backbone.View.extend({
             var time = this.$('#time').val();
             if (!$.isNumeric(time)) { time = null };
             var lives = this.$('span.life:not(.off)').length;
-            this.model.set({ name: name, time: time, lives: lives });
+            this.model.set({ name: name, maxTime: time, lives: lives });
 
             this.$('.control-group').removeClass('error');
             this.$('.help-block').remove();
