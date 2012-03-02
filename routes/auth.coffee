@@ -2,12 +2,11 @@
 module.exports = (app, db) ->
   
   users = require("../models/user").Users db
+  roles = require("../models/user").roles
+  auth = require "../libs/auth-middleware"
 
   passport = require "passport"
   GoogleStrategy = require("passport-google").Strategy
-  roles =
-    admin: "admin"
-    member: "member"
 
   passport.use new GoogleStrategy(
     returnURL: "http://localhost:3000/auth/google/return"
@@ -37,15 +36,6 @@ module.exports = (app, db) ->
       done err, null unless user
       done err, user
 
-  isLoggedIn = (req, res, next) ->
-    return next() if req.isAuthenticated()
-    returnUrl = "?return=" + (if req.method is "GET" then req.url or "/" else "/")
-    res.redirect "/login#{ returnUrl }"
-
-  isAdmin = (req, res, next) ->
-    return next() if req.user.role is roles.admin
-    next new Error "You are forbidden to see this page."
-
   app.get "/login", (req, res) ->
     req.session.returnUrl = req.param("return") or "/"
     res.render "auth/login",
@@ -69,7 +59,7 @@ module.exports = (app, db) ->
       failureRedirect: "/login"
     ) req, res, next
 
-  app.get "/admin/users", isLoggedIn, isAdmin, (req, res) ->
+  app.get "/admin/users", auth.isLoggedIn, auth.isAdmin, (req, res) ->
     users.find {}, (err, data) ->
       res.render "auth/users",
         title: "Administer Users"
@@ -87,11 +77,11 @@ module.exports = (app, db) ->
       else
         res.send success: true
 
-  app.get "/admin/user/:id", isLoggedIn, isAdmin, deleteUser
+  app.get "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
   
-  app.del "/admin/user/:id", isLoggedIn, isAdmin, deleteUser
+  app.del "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
 
-  app.post "/admin/user/:id", isLoggedIn, isAdmin, (req, res) ->
+  app.post "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, (req, res) ->
     role = req.body.role or roles.member
     users.update { _id: req.params.id }, { role: role }, { multi: false }
     , (err) ->

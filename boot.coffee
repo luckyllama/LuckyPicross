@@ -46,4 +46,4 @@ bootApplication = (app) ->
 bootRoutes = (app, db) ->
   dir = __dirname + "/routes"
   fs.readdirSync(dir).forEach (file) ->
-    require(dir + "/" + file) app, db
+    require("#{dir}/#{file}") app, db

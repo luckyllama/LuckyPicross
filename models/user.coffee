@@ -25,3 +25,7 @@ mongoose.model "User", User
 
 exports.Users = (db) ->
   db.model "User"
+
+exports.roles = 
+    admin: "admin"
+    member: "member"
