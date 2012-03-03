@@ -22,4 +22,7 @@ module.exports = (app, db) ->
                 res.json(data)
 
     app.get "/game/:id", (req, res) ->
-        res.render "picross/game", { title: "Picross" }
+        games.findById req.params.id, (err, data) ->
+            throw new Error("Game #{ req.params.id } could not be found.") if err
+
+            res.render "picross/game", { title: "Picross", game: data }
