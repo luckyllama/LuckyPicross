@@ -17,16 +17,15 @@ module.exports = (app, db) ->
         users.findById req.params.id, (err, data) ->
             throw new Error("User #{ req.params.id } could not be found.") if err
       
-        data.remove() if data
+            data.remove() if data
 
-        if req.method is "GET"
-            res.redirect "/admin/users"
-        else
-            res.send success: true
+            if req.method is "GET"
+                res.redirect "/admin/users"
+            else
+                res.send success: true
 
-    app.get "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
-  
-    app.del "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, deleteUser
+    app.get "/admin/user/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteUser
+    app.del "/admin/user/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteUser
 
     app.post "/admin/user/:id", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         role = req.body.role or roles.member
@@ -40,3 +39,17 @@ module.exports = (app, db) ->
             res.render "admin/games"
                 title: "Administer Games"
                 games: data
+
+    deleteGame = (req, res) ->
+        games.findById req.params.id, (err, data) ->
+            throw new Error("Game #{ req.params.id } could not be found.") if err
+
+            data.remove() if data
+
+            if req.method is "GET"
+                res.redirect "/admin/games"
+            else 
+                res.send success: true
+
+    app.get "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
+    app.del "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame

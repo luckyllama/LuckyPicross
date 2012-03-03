@@ -15,18 +15,33 @@
             if games.length > 0
                 tbody
                     - each game in games
-                      tr
+                      tr(data-hash='#{game.hash}', data-width='#{game.width}', data-height='#{game.height}')
                         td.preview(data-hash='#{game.hash}', data-width='#{game.width}', data-height='#{game.height}')
                         td.name= game.name
                         td.size  #{game.width}x#{game.height}
                         td.lives= game.lives
                         td.maxTime= game.maxTime
-                        td.actions
-                            a.delete(href='/admin/game/#{game._id}') Delete
+                        td.actions.btn-group
+                            a.preview.btn.dropdown-toggle(data-toggle='dropdown') preview
+                                span.caret
+                            .dropdown-menu.preview-thumbnail(style='display:none;')
+                            a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete
             else
                 tbody
                     tr: td(colspan=6) There are no games.
 
+        .modal.fade#delete-modal
+            .modal-header
+                a.close(data-dismiss='modal') ×
+                h3 "But we hardly know each other!" - game
+            .modal-body
+                p.preview-thumbnail
+                p Are you sure you want to delete this game? 
+            .modal-footer
+                a.btn.btn-danger delete
+                a.btn.keep keep
+
 - scripts.push('/javascripts/admin-games.js')
 - scripts.push('/bootstrap/js/bootstrap-alert.js')
 - scripts.push('/bootstrap/js/bootstrap-transition.js')
+- scripts.push('/bootstrap/js/bootstrap-modal.js')

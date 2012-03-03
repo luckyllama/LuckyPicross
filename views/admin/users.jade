@@ -31,8 +31,8 @@
                                         option(selected)= role
                                     else
                                         option= role
-                        td.actions
-                            a.delete(href='/admin/user/#{user._id}') Delete
+                        td.actions.btn-group
+                            a.btn.btn-danger.delete(href='/admin/user/#{user._id}/delete') Delete
             else
                 tbody
                     tr: td(colspan=6) There are no current users.
