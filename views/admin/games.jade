@@ -29,7 +29,7 @@
                                 span.caret
                             .dropdown-menu.preview-thumbnail(style='display:none;')
                             a.btn.play(href='/game/#{game._id}') play
-                            a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete
+                            a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete  
             else
                 tbody
                     tr: td(colspan=6) There are no games.
@@ -45,7 +45,7 @@
                 a.btn.btn-danger delete
                 a.btn(data-dismiss='modal') keep
 
-- scripts.push('/javascripts/admin-games.js')
+- scripts.push('/js/admin-games.js')
 - scripts.push('/bootstrap/js/bootstrap-alert.js')
 - scripts.push('/bootstrap/js/bootstrap-transition.js')
 - scripts.push('/bootstrap/js/bootstrap-modal.js')

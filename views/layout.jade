@@ -3,10 +3,10 @@ html
   head
     title= title
     link(rel='stylesheet/less', href='/bootstrap/less/bootstrap.less')
-    link(rel='stylesheet/less', type='text/css', href='/stylesheets/site.less')
-    link(rel='stylesheet/less', type='text/css', href='/stylesheets/game.less')
-    script(src='/javascripts/lib/less-1.2.1.min.js')
-    script(src='/javascripts/lib/modernizr-2.0.6-development-only.js')
+    link(rel='stylesheet/less', type='text/css', href='/css/site.less')
+    link(rel='stylesheet/less', type='text/css', href='/css/game.less')
+    script(src='/js/lib/less-1.2.1.min.js')
+    script(src='/js/lib/modernizr-2.0.6-development-only.js')
     block head
   body
     .navbar
@@ -27,18 +27,18 @@ html
         footer: p &copy; Copyright 2012
 
     
-    script(src='/javascripts/lib/jquery-1.7.1.js')
-    script(src='/javascripts/lib/jquery.base64.min.js')
-    script(src='/javascripts/lib/jquery.countdown.min.js')
+    script(src='/js/lib/jquery-1.7.1.js')
+    script(src='/js/lib/jquery.base64.min.js')
+    script(src='/js/lib/jquery.countdown.min.js')
     script(src='/bootstrap/js/bootstrap-dropdown.js')
     script(src='/bootstrap/js/bootstrap-button.js')
     script(src='/bootstrap/js/bootstrap-modal.js')
-    script(src='/javascripts/lib/underscore-1.3.1.js')
-    script(src='/javascripts/lib/backbone-0.9.1.js')
-    script(src='/javascripts/base.js')
-    script(src='/javascripts/picross-base.js')
-    script(src='/javascripts/picross-editor.js')
-    script(src='/javascripts/picross-game.js')
-    script(src='/javascripts/app.js')
+    script(src='/js/lib/underscore-1.3.1.js')
+    script(src='/js/lib/backbone-0.9.1.js')
+    script(src='/js/base.js')
+    script(src='/js/picross-base.js')
+    script(src='/js/picross-editor.js')
+    script(src='/js/picross-game.js')
+    script(src='/js/app.js')
     - each script in scripts
       script(src='#{script}')
