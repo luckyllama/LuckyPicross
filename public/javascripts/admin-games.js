@@ -27,40 +27,36 @@ $(function () {
                     modal.modal('hide');
                 });
         });
-        $('.keep', modal).off('click').on('click', function () {
-            modal.modal('hide');
-        });
         return false;
     });
 
     var generateSvg = function (gameHash, gameHeight, gameWidth, svgWidth) {
-        console.log(gameHash, gameHeight, gameWidth, svgWidth)
-            var game = new App.Models.Game({ hash: gameHash, height: gameHeight, width: gameWidth });
+        var game = new App.Models.Game({ hash: gameHash, height: gameHeight, width: gameWidth });
 
-            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.setAttribute("version", "1.2");
-            svg.setAttribute("baseProfile", "tiny");
-            svg.style.width = svgWidth;
-            svg.style.height = svgWidth;
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("version", "1.2");
+        svg.setAttribute("baseProfile", "tiny");
+        svg.style.width = svgWidth;
+        svg.style.height = svgWidth;
 
-            var width = game.get('width');
-            var height = game.get('height');
-            var squareSize = svgWidth / height;
-            
-            _.each(game.get('board').split(''), function (value, index) {
-                if (value === "1") {
-                    var square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        var width = game.get('width');
+        var height = game.get('height');
+        var squareSize = svgWidth / height;
+        
+        _.each(game.get('board').split(''), function (value, index) {
+            if (value === "1") {
+                var square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
-                    square.style.fill = "black";
-                    square.width.baseVal.value = squareSize;
-                    square.height.baseVal.value = squareSize;
-                    square.x.baseVal.value = (index % width) * squareSize;
-                    square.y.baseVal.value = parseInt(index / height) * squareSize;
+                square.style.fill = "black";
+                square.width.baseVal.value = squareSize;
+                square.height.baseVal.value = squareSize;
+                square.x.baseVal.value = (index % width) * squareSize;
+                square.y.baseVal.value = parseInt(index / height) * squareSize;
 
-                    svg.appendChild(square);
-                }
-            });
-            return svg;
+                svg.appendChild(square);
+            }
+        });
+        return svg;
     }
 
     $('a.preview').hover(function () {

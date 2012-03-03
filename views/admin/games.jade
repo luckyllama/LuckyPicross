@@ -25,6 +25,7 @@
                             a.preview.btn.dropdown-toggle(data-toggle='dropdown') preview
                                 span.caret
                             .dropdown-menu.preview-thumbnail(style='display:none;')
+                            a.btn.play(href='/game/#{game._id}') play
                             a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete
             else
                 tbody
@@ -39,7 +40,7 @@
                 p Are you sure you want to delete this game? 
             .modal-footer
                 a.btn.btn-danger delete
-                a.btn.keep keep
+                a.btn(data-dismiss='modal') keep
 
 - scripts.push('/javascripts/admin-games.js')
 - scripts.push('/bootstrap/js/bootstrap-alert.js')

@@ -63,6 +63,8 @@ App.Views.PuzzleDetails = Backbone.View.extend({
         this.model.on('error', function (model, errors) {
             console.log(errors);
         });
+        this.$saveSuccessModal = this.$('#save-success');
+        this.$saveErrorModal = this.$('#save-error');
     },
     events: {
         'click span.life' : function (ev) {
@@ -83,7 +85,16 @@ App.Views.PuzzleDetails = Backbone.View.extend({
             this.$('.help-block').remove();
             var validationErrors = this.model.customValidate();
             if (_.size(validationErrors) === 0) {
-                this.model.save();
+                var self = this;
+                this.model.save(null, {
+                    success: function () {
+                        $('.btn-success', self.$saveSuccessModal).attr('href', '/game/' + self.model.get('_id'));
+                        self.$saveSuccessModal.modal('show');
+                    },
+                    error: function () {
+                        self.$saveErrorModal.modal('show');
+                    }
+                });
             } else {
                 _.each(validationErrors, function (value, key) {
                     var $error = $('<p>').addClass('help-block').text(value);

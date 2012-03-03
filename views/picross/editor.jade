@@ -43,3 +43,21 @@
                     .controls
                         button.btn.btn-primary.save(type='button') Save
                         button.btn.reset(type='button') Reset
+                        .modal.fade#save-success 
+                            .modal-header
+                                a.close(data-dismiss='modal') ×
+                                h3 You did it! 
+                            .modal-body
+                                p Your game has been created! Do you want to go ahead and play it? 
+                            .modal-footer
+                                a.btn.btn-success.ajax(data-dismiss='modal') play now!
+                                a.btn(data-dismiss='modal') no thanks
+                        .modal.fade#save-error
+                            .modal-header
+                                a.close(data-dismiss='modal') ×
+                                h3 I hate to break it to you...
+                            .modal-body
+                                p Something has gone wrong and your game did not save. Perhaps it'll work a little later. 
+                            .modal-footer
+                                a.btn(data-dismiss='modal') *grumble* okay
+

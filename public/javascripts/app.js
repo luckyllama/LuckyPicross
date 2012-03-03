@@ -20,7 +20,7 @@ App.Router = Backbone.Router.extend({
         });
     },
     game: function (id) {
-        this.loadContent('/game', { id: id }, function () {
+        this.loadContent('/game/' + id, null, function () {
             var model = new App.Models.Game({ hash: 'dde5595655dde659565595655', maxTime: 3 });
             var game = new App.Views.PicrossGame({ el: '.picross-game', model: model });
             game.render();
