@@ -51,6 +51,6 @@ bootApplication = (app) ->
       ).join('\n ');
 
 bootRoutes = (app, db) ->
-  dir = __dirname + "/routes"
+  dir = __dirname + "/controllers"
   fs.readdirSync(dir).forEach (file) ->
     require("#{dir}/#{file}") app, db

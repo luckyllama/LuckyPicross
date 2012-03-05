@@ -10,6 +10,8 @@ Game = new Schema(
     maxTime:    { type: Number }
     height:     { type: Number }
     width:      { type: Number }
+    pack:       { type: ObjectId, ref: 'Pack' }
+    created:    { type: Date, default: Date.now }
 )
 
 mongoose.model "Game", Game

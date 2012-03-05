@@ -5,6 +5,7 @@ module.exports = (app, db) ->
     roles = require("../models/user").roles
     auth = require "../libs/auth-middleware"
     games = require("../models/game").Games db
+    packs = require("../models/pack").Packs db
 
     app.get "/admin/users", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         users.find {}, (err, data) ->
@@ -53,3 +54,9 @@ module.exports = (app, db) ->
 
     app.get "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
     app.del "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
+
+    app.get "/admin/packs", auth.isLoggedIn, auth.isAdmin, (req, res) ->
+        packs.find {}, (err, data) ->
+            res.render "admin/packs"
+                title: "Administer Packs"
+                packs: data

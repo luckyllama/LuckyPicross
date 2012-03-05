@@ -50,11 +50,7 @@ module.exports = (app, db) ->
     req.session.returnUrl = req.param("return") or req.session.returnUrl or "/"
     passport.authenticate("google") req, res, next
 
-  app.get "/auth/google/return", (req, res, next) ->
+  app.get "/auth/google/return", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) ->
     returnUrl = req.session.returnUrl or "/"
-    passport.authenticate("google",
-      successRedirect: do ->
-        req.session.returnUrl = null
-        returnUrl
-      failureRedirect: "/login"
-    ) req, res, next
+    req.session.returnUrl = null
+    res.redirect returnUrl
