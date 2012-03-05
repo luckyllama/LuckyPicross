@@ -10,7 +10,7 @@ module.exports = (app, db) ->
     app.get "/admin/users", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         users.find {}, (err, data) ->
             res.render "admin/users",
-                title: "Administer Users"
+                title: "administer users"
                 users: data
                 roles: roles
 
@@ -38,7 +38,7 @@ module.exports = (app, db) ->
     app.get "/admin/games", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         games.find {}, (err, data) ->
             res.render "admin/games"
-                title: "Administer Games"
+                title: "administer games"
                 games: data
 
     deleteGame = (req, res) ->
@@ -58,5 +58,5 @@ module.exports = (app, db) ->
     app.get "/admin/packs", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         packs.find {}, (err, data) ->
             res.render "admin/packs"
-                title: "Administer Packs"
+                title: "administer packs"
                 packs: data

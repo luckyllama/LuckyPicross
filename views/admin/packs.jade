@@ -1,0 +1,39 @@
+.page-header
+    h1= title
+
+.row
+    .span12
+        div#response
+        table.table
+            thead
+                tr
+                    th.span4 name
+                    th.span2 active
+                    th.span2 games
+                    th.span4 created
+                    th actions
+            if packs.length > 0
+                tbody
+                    - each pack in packs
+                      tr
+                        td.name= pack.name
+                        td.active
+                            input(type='checkbox', name='#{pack._id}')
+                        td.games= pack.games
+                        td.created= pack.created
+                        td.actions.btn-group
+                            a.btn.play(href='/pack/#{pack._id}') view
+                            a.btn.btn-danger.delete(href='/admin/pack/#{pack._id}/delete') delete  
+            else
+                tbody
+                    tr: td(colspan=5) There are no packs.
+
+        .modal.fade#delete-modal
+            .modal-header
+                a.close(data-dismiss='modal') ×
+                h3 "Goodbye cruel world..."
+            .modal-body
+                p Are you sure you want to delete this pack? 
+            .modal-footer
+                a.btn.btn-danger delete
+                a.btn(data-dismiss='modal') keep

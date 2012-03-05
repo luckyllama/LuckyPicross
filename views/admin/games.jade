@@ -7,16 +7,15 @@
         table.table
             thead
                 tr
-                    th.span1 
                     th.span3 name
                     th.span2 size
                     th.span2 lives
                     th.span2 max time
+                    th.span3 actions
             if games.length > 0
                 tbody
                     - each game in games
                       tr(data-hash='#{game.hash}', data-width='#{game.width}', data-height='#{game.height}')
-                        td.preview(data-hash='#{game.hash}', data-width='#{game.width}', data-height='#{game.height}')
                         td.name= game.name
                         td.size  #{game.width}x#{game.height}
                         td.lives
@@ -32,7 +31,11 @@
                             a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete  
             else
                 tbody
-                    tr: td(colspan=6) There are no games.
+                    tr: td(colspan=5) There are no games.
+            tfoot
+                tr
+                    td(colspan=4)
+                    td: a.btn.btn-primary(href='/editor') new game
 
         .modal.fade#delete-modal
             .modal-header

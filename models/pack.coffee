@@ -5,6 +5,7 @@ ObjectId = Schema.ObjectId
 
 Pack = new Schema(
     name:       { type: String, trim: true, index: true }
+    isActive:   { type: Boolean }
     games:      [{ type: ObjectId, ref: 'Game' }]
     created:    { type: Date, default: Date.now }
 )
