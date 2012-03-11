@@ -8,9 +8,10 @@
             thead
                 tr
                     th.span3 name
-                    th.span2 size
-                    th.span2 lives
-                    th.span2 max time
+                    th.span1 size
+                    th.span1 lives
+                    th.span1 max time
+                    th.span3 pack
                     th.span3 actions
             if games.length > 0
                 tbody
@@ -23,6 +24,11 @@
                             |  x 
                             b #{game.lives}
                         td.maxTime= game.maxTime
+                        td.pack
+                            select.span3(name='pack', data-update-url='/admin/game/#{game._id}/update-pack')
+                                option(value='') none
+                                - each pack in packs
+                                  option(value='#{pack._id}', selected=(String(game.pack) == String(pack._id)))= pack.name
                         td.actions.btn-group
                             a.preview.btn.dropdown-toggle(data-toggle='dropdown') preview
                                 span.caret
@@ -31,10 +37,10 @@
                             a.btn.btn-danger.delete(href='/admin/game/#{game._id}/delete') delete  
             else
                 tbody
-                    tr: td(colspan=5) There are no games.
+                    tr: td(colspan=6) There are no games.
             tfoot
                 tr
-                    td(colspan=4)
+                    td(colspan=5)
                     td: a.btn.btn-primary(href='/editor') new game
 
         .modal.fade#delete-modal

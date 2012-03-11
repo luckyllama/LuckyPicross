@@ -1,8 +1,8 @@
 $(function () {
 
-    var updateStatus = function (data, successMessage, errorMessage) {
+    var updateStatus = function (success, successMessage, errorMessage) {
         var $closeLink = $('<a>').addClass('close').attr('data-dismiss', 'alert').text('x');
-        if (data.success) {
+        if (success) {
             $('#response').html($('<div>').addClass('alert alert-success')
                 .text(successMessage).append($closeLink));
         } else {
@@ -23,11 +23,21 @@ $(function () {
                     if (data.success) {
                         link.closest('tr').remove();
                     }
-                    updateStatus(data, 'Game has been deleted.', 'Could not delete game.');
+                    updateStatus(data.success, 'Game has been deleted.', 'Could not delete game.');
                     modal.modal('hide');
                 });
         });
         return false;
+    });
+
+    $('table').on('change', 'td.pack select', function () {
+        var pack = $(this);
+        $.ajax(pack.data('updateUrl'), { data: { packId: pack.val() }, type: 'POST' })
+            .done(function (data) {
+                updateStatus(data.success, 'Game has been updated.', 'Could not update game.');
+            }).fail(function () {
+                updateStatus(false, null, 'Server error: could not update game.')
+            });
     });
 
     var generateSvg = function (gameHash, gameHeight, gameWidth, svgWidth) {

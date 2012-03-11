@@ -8,10 +8,10 @@
             thead
                 tr
                     th.span4 name
-                    th.span2 active
-                    th.span2 games
-                    th.span4 created
-                    th actions
+                    th.span1 active
+                    th.span1 games
+                    th.span3 created
+                    th.span3 actions
             if packs.length > 0
                 tbody
                     - each pack in packs
@@ -19,21 +19,43 @@
                         td.name= pack.name
                         td.active
                             input(type='checkbox', name='#{pack._id}')
-                        td.games= pack.games
-                        td.created= pack.created
+                        td.games= pack.games.length
+                        td.created: span.timeago(title='#{pack.created.toJSON()}')= pack.created.toDateString()
                         td.actions.btn-group
                             a.btn.play(href='/pack/#{pack._id}') view
-                            a.btn.btn-danger.delete(href='/admin/pack/#{pack._id}/delete') delete  
+                            a.btn.btn-danger.delete(href='/admin/pack/#{pack._id}/delete') delete
             else
                 tbody
                     tr: td(colspan=5) There are no packs.
+            tfoot
+                tr 
+                    td.name: div.control-group: div.controls: input.span4(type='text', name='name', required)
+                    td(colspan=3)
+                    td: a.btn.btn-primary.new-pack(href='/admin/pack/create') create
+
+        script#row(type='text/template')
+            tr
+                td.name {{name}}
+                td.active
+                    input(type='checkbox', name='{{_id}}')
+                td.games {{games.length}}
+                td.created: span.timeago(title='{{created}}') {{createdDate}}
+                td.actions.btn-group
+                    a.btn.play(href='/pack/{{_id}}') view
+                    a.btn.btn-danger.delete(href='/admin/pack/{{_id}}/delete') delete
 
         .modal.fade#delete-modal
             .modal-header
                 a.close(data-dismiss='modal') ×
                 h3 "Goodbye cruel world..."
             .modal-body
-                p Are you sure you want to delete this pack? 
+                p Are you sure you want to delete this pack? Any games this pack has will be disassociated. 
             .modal-footer
                 a.btn.btn-danger delete
                 a.btn(data-dismiss='modal') keep
+
+- scripts.push('/js/admin/packs.js')
+- scripts.push('/js/lib/jquery.timeago.js')
+- scripts.push('/bootstrap/js/bootstrap-alert.js')
+- scripts.push('/bootstrap/js/bootstrap-transition.js')
+- scripts.push('/bootstrap/js/bootstrap-modal.js')
