@@ -6,6 +6,7 @@ module.exports = (app, db) ->
     auth = require "../libs/auth-middleware"
     games = require("../models/game").Games db
     packs = require("../models/pack").Packs db
+    ObjectId = require("mongoose").Types.ObjectId
 
     app.get "/admin/users", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         users.find {}, (err, data) ->
@@ -51,28 +52,27 @@ module.exports = (app, db) ->
             oldPackId = if game.pack then game.pack + '' else null
             game.pack = newPackId;
             game.save()
-            
-            ids = []
-            ids.push id for id in [oldPackId, newPackId] when id
-            console.log ids
-            packs.find { _id: { $in: [oldPackId, newPackId] } }, (err, packs) ->
-                console.log packs
-                for pack in packs
-                    if String(pack._id) is oldPackId
-                        pack.games.remove(gameId);
-                        pack.save()
-                    if String(pack._id) is newPackId
-                        pack.games.push(gameId)
-                        pack.save()
 
+            if newPackId
+                packs.update { _id: newPackId }, { $addToSet: { games: gameId } }, (err) ->
+                    throw new Error "Could not add game to pack #{ newPackId }" if err
+            if oldPackId
+                packs.findById oldPackId, (err, pack) ->
+                    pack.games.remove gameId
+                    pack.save()
 
             res.send success: true
 
     deleteGame = (req, res) ->
-        games.findById req.params.id, (err, data) ->
-            throw new Error("Game #{ req.params.id } could not be found.") if err
+        games.findById req.params.id, (err, game) ->
+            throw new Error "Game #{ req.params.id } could not be found." if err
 
-            data.remove() if data
+            if game
+                if game.pack?
+                    packs.findById game.pack, (err, pack) -> 
+                        pack.games.remove(game._id) if pack
+                        pack.save()
+                game.remove()
 
             if req.method is "GET"
                 res.redirect "/admin/games"
@@ -83,11 +83,10 @@ module.exports = (app, db) ->
     app.del "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
 
     app.get "/admin/packs", auth.isLoggedIn, auth.isAdmin, (req, res) ->
-        packs.find {}, (err, data) ->
-            console.log data
+        packs.find {}, (err, packs) ->
             res.render "admin/packs"
                 title: "administer packs"
-                packs: data
+                packs: packs
 
     app.put "/admin/pack/create", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         if not req.body.name or req.body.name.trim().length <= 0 

@@ -11,7 +11,7 @@ $(function () {
         }
     };
 
-    $('a.delete').click(function () {
+    $('table').on('click', 'a.delete', function (ev) {
         var link = $(this);
         var modal = $('#delete-modal');
         var $row = link.closest('tr');
@@ -27,7 +27,7 @@ $(function () {
                     modal.modal('hide');
                 });
         });
-        return false;
+        ev.preventDefault();
     });
 
     $('table').on('change', 'td.pack select', function () {
