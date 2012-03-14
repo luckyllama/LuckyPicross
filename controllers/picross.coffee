@@ -5,7 +5,7 @@ module.exports = (app, db) ->
     packs = require("../models/pack").Packs(db)
 
     app.get "/editor", (req, res) ->
-        res.render "picross/editor", { title: "Puzzle Creator" }
+        res.render "picross/editor", { title: "editor" }
 
     app.post "/editor", (req, res) ->
         gameData = 
@@ -26,7 +26,7 @@ module.exports = (app, db) ->
         games.findById req.params.id, (err, game) ->
             throw new Error("Game #{ req.params.id } could not be found.") if err
 
-            res.render "picross/game", { title: "Picross", game: game }
+            res.render "picross/game", { title: "picross", game: game }
 
     app.get "/pack/:id", (req, res) ->
         packs.findById(req.params.id).populate('games').run (err, pack) ->

@@ -38,8 +38,7 @@ module.exports = (app, db) ->
 
   app.get "/login", (req, res) ->
     req.session.returnUrl = req.param("return") or "/"
-    res.render "admin/login",
-      title: "Login"
+    res.render "admin/login", { title: "login" }
 
   app.get "/logout", (req, res) ->
     returnUrl = req.param("return") or "/"
