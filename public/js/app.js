@@ -4,11 +4,19 @@ App.pageHasLoaded = false;
 App.Router = Backbone.Router.extend({
     routes: {
         '': 'index',
+        'packs': 'packs',
+        'pack/:id': 'pack',
         'editor': 'editor',
         'game/:id': 'game'
     },
     index: function () {
         this.loadContent('/');
+    },
+    packs: function () {
+        this.loadContent('/packs');
+    },
+    pack: function (id) {
+        this.loadContent('/pack/' + id);
     },
     editor: function() {
         this.loadContent('/editor', null, function () {

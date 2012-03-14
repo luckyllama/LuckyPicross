@@ -1,0 +1,13 @@
+.page-header
+    h1= title
+
+.row
+    .span12
+        if pack.games.length > 0
+            - each game in pack.games
+              .game 
+                .name= game.name
+                .lives= game.lives
+                a.ajax.play(href='/game/#{game._id}') play
+        else 
+            div *tumble weeds* There are no games in this pack. 

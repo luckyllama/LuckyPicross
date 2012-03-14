@@ -1,0 +1,12 @@
+.page-header
+    h1= title
+
+.row
+    .span12
+        if packs.length > 0
+            - each pack in packs
+              .pack
+                .name= pack.name
+                a.ajax.play(href='/pack/#{pack._id}') play
+        else 
+            div *tumble weeds* There are no packs. 
