@@ -22,7 +22,7 @@ $(function () {
                     if (data.success) {
                         link.closest('tr').remove();
                     }
-                    updateStatus(data.success, 'Pack has been deleted.', 'Could not delete pack.');
+                    updateStatus(data.success, 'Pack "' + data.name + '" has been deleted.', 'Could not delete pack.');
                     modal.modal('hide');
                 });
         });
@@ -30,7 +30,7 @@ $(function () {
     });
 
     $('table').on('click', 'td.active input', function (ev) {
-        
+
     })
 
     $('tfoot a.new-pack').click(function (ev) {

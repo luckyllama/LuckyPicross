@@ -23,7 +23,7 @@ $(function () {
                     if (data.success) {
                         link.closest('tr').remove();
                     }
-                    updateStatus(data.success, 'Game has been deleted.', 'Could not delete game.');
+                    updateStatus(data.success, 'Game "' + data.name + '" has been deleted.', 'Could not delete game.');
                     modal.modal('hide');
                 });
         });
@@ -34,7 +34,7 @@ $(function () {
         var pack = $(this);
         $.ajax(pack.data('updateUrl'), { data: { packId: pack.val() }, type: 'POST' })
             .done(function (data) {
-                updateStatus(data.success, 'Game has been updated.', 'Could not update game.');
+                updateStatus(data.success, 'Game "' + data.name + '" has been updated.', 'Could not update game.');
             }).fail(function () {
                 updateStatus(false, null, 'Server error: could not update game.')
             });

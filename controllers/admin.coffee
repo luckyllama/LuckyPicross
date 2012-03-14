@@ -61,7 +61,7 @@ module.exports = (app, db) ->
                     pack.games.remove gameId
                     pack.save()
 
-            res.send success: true
+            res.send success: true, name: game.name
 
     deleteGame = (req, res) ->
         games.findById req.params.id, (err, game) ->
@@ -77,7 +77,7 @@ module.exports = (app, db) ->
             if req.method is "GET"
                 res.redirect "/admin/games"
             else 
-                res.send success: true
+                res.send success: true, name: game.name
 
     app.get "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
     app.del "/admin/game/:id/delete", auth.isLoggedIn, auth.isAdmin, deleteGame
@@ -116,10 +116,13 @@ module.exports = (app, db) ->
                     value: pack
 
     app.del "/admin/pack/:id/delete", auth.isLoggedIn, auth.isAdmin, (req, res) ->
-        packs.findById req.params.id, (err, data) ->
+        packs.findById req.params.id, (err, pack) ->
             throw new Error("Pack #{ req.params.id } could not be found.") if err
 
-            data.remove() if data
+            games.update { pack: pack._id }, { pack: null }, { multi: true }, (err) ->
+                throw new Error "Error delete game<->pack association." if err
 
-            res.send success: true
+            pack.remove() if pack
+
+            res.send success: true, name: pack.name
 
