@@ -30,7 +30,14 @@ $(function () {
     });
 
     $('table').on('click', 'td.active input', function (ev) {
-
+        var checkbox = $(this);
+        $.ajax(checkbox.data('updateUrl'), { data: { isActive: checkbox.is(':checked') }, type: 'POST' })
+            .done(function (data) {
+                var updated = checkbox.is(':checked') ? 'activated' : 'deactivated';
+                updateStatus(data.success, 'Pack has been ' + updated + '.', 'Could not update pack.');
+            }).fail(function () {
+                updateStatus(false, null, 'Server error: could not update pack.')
+            });
     })
 
     $('tfoot a.new-pack').click(function (ev) {

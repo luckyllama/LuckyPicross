@@ -18,7 +18,7 @@
                       tr
                         td.name= pack.name
                         td.active
-                            input(type='checkbox', name='#{pack._id}')
+                            input(type='checkbox', name='#{pack._id}', checked=pack.isActive, data-update-url='/admin/pack/#{pack._id}/activate')
                         td.games= pack.games.length
                         td.created: span.timeago(title='#{pack.created.toJSON()}')= pack.created.toDateString()
                         td.actions.btn-group
@@ -37,7 +37,7 @@
             tr
                 td.name {{name}}
                 td.active
-                    input(type='checkbox', name='{{_id}}')
+                    input(type='checkbox', name='{{_id}}', checked=true, data-update-url='/admin/pack/{{_id}}/activate')
                 td.games {{games.length}}
                 td.created: span.timeago(title='{{created}}') {{createdDate}}
                 td.actions.btn-group

@@ -115,9 +115,15 @@ module.exports = (app, db) ->
                     success: true
                     value: pack
 
+    app.post "/admin/pack/:id/activate", auth.isLoggedIn, auth.isAdmin, (req, res) ->
+        packs.update { _id: req.params.id }, { isActive: req.body.isActive == true.toString() }, (err) ->
+            throw new Error "Pack #{ req.params.id } could not be updated." if err
+            
+            res.send success: true
+
     app.del "/admin/pack/:id/delete", auth.isLoggedIn, auth.isAdmin, (req, res) ->
         packs.findById req.params.id, (err, pack) ->
-            throw new Error("Pack #{ req.params.id } could not be found.") if err
+            throw new Error "Pack #{ req.params.id } could not be found." if err
 
             games.update { pack: pack._id }, { pack: null }, { multi: true }, (err) ->
                 throw new Error "Error delete game<->pack association." if err
