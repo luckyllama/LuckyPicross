@@ -3,11 +3,16 @@
 
 .row
     .span12
-        if pack.games.length > 0
-            - each game in pack.games
-              .game 
-                .name= game.name
-                .lives= game.lives
-                a.ajax.play(href='/game/#{game._id}') play
-        else 
-            div *tumble weeds* There are no games in this pack. 
+        ul.menu
+            if pack.games.length > 0
+                - each game in pack.games
+                  li.game 
+                    h2.name= game.name
+                    .lives
+                            i.icon-heart 
+                            |  x 
+                            b #{game.lives}
+                    .actions
+                        a.ajax.play.btn.btn-success.btn-large(href='/game/#{game._id}') play
+            else 
+                div *tumble weeds* There are no games in this pack. 

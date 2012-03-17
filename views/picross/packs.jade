@@ -3,10 +3,13 @@
 
 .row
     .span12
-        if packs.length > 0
-            - each pack in packs
-              .pack
-                .name= pack.name
-                a.ajax.play(href='/pack/#{pack._id}') play
-        else 
-            div *tumble weeds* There are no packs. 
+        ul.menu
+            if packs.length > 0
+                - each pack in packs
+                  li.pack
+                    h2.name= pack.name
+                    .games #{pack.games.length} games
+                    .actions
+                        a.ajax.play.btn.btn-large.btn-success(href='/pack/#{pack._id}') view games
+            else 
+                div *tumble weeds* There are no packs. 

@@ -61,7 +61,12 @@ Backbone.history.start({ pushState: true });
 $(document).on('click', 'a.ajax', function (ev) {
     var href = $(this).attr('href');
     router.navigate(href, true);
-    ev.preventDefault();
+    return false; // stop all other events since we're changing pages
 });
 
 App.pageHasLoaded = true;
+
+$(document).on('click', 'ul.menu li', function (ev) {
+    var $li = $(this);
+    $('.actions a', $li).click();
+})

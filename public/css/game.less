@@ -16,6 +16,32 @@
         color-stop(0.64, #60CEEF)
     );
 }
+ul.menu {
+    width: 65%;
+    margin: 0 auto;
+
+    li:first-child {
+        border-top: none;
+    }
+    li {
+        border-top: solid 1px #666;
+        clear: both;
+        list-style: none;
+        padding: 15px;
+        position: relative;
+        height: 55px;
+        cursor: pointer;
+
+        &:hover{
+            background-color: #eee;
+        }
+        .actions {
+            position: absolute;
+            right: 15px;
+            top: 24px;
+        }
+    }
+}
 
 .picross-game {
 	border: solid 1px #eee;
