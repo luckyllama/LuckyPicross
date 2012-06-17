@@ -32,3 +32,7 @@ nbproject
 .svn
 .CVS
 .idea
+
+# As it's an IIS only thing, ignore the web.config
+web.config
+*.logs/
